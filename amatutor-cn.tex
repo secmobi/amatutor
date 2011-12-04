@@ -1,0 +1,76 @@
+%!TEX encoding = UTF-8 Unicode
+\documentclass[UTF8, a4paper, 11pt, oneside]{ctexbook}
+
+% 颜色，图像
+\usepackage[pdftex]{color, graphicx}
+\usepackage{tikz}
+
+% 参考文献，按照被引先后排序
+\bibliographystyle{unsrt}
+
+% 索引
+\usepackage{makeidx}
+\makeindex
+
+% 使用Courier New作为等宽字体
+\renewcommand\ttdefault{pcr}
+
+% 源码高亮环境
+\definecolor{gray}{rgb}{0.9,0.9,0.9}
+\usepackage{listings}
+\lstset{
+	language=Java, 
+	basicstyle=\ttfamily\small, 
+	keywordstyle=\color{blue}, 
+	commentstyle=\color{darkgreen}, 
+	stringstyle=\color{red}, 
+	backgroundcolor=\color{gray},
+	frame=single,
+	numbers=left, 
+	numberstyle=\tiny,
+	stepnumber=1,  
+	xleftmargin=-1em,
+	xrightmargin=-3em, 
+	aboveskip=0em,
+	tabsize=4,
+	breaklines=true, 
+	title=\lstname,
+	extendedchars=false,	% 必须如此，否则和hyperref冲突，出错。
+ }
+
+% 页码、页眉风格
+\pagestyle{plain}
+
+% 内部引用超链接
+\usepackage[pdftex,unicode,colorlinks=true,urlcolor=blue,linkcolor=blue,citecolor=blue]{hyperref}
+
+\begin{document}
+\frontmatter
+\title{Android恶意代码分析}
+\author{肖梓航}
+\date{}
+\maketitle
+
+\vfill
+\thispagestyle{empty}
+\begin{center}
+\it{To qiyang.}
+\end{center}
+\vfill
+
+\include{preface-cn}
+
+\tableofcontents
+\setcounter{tocdepth}{3}
+
+\mainmatter
+\include{chapter-cn/static}
+\include{chapter-cn/dynamic}
+\include{chapter-cn/dalvik}
+
+\appendix
+
+\backmatter
+\bibliography{main.bib}
+\printindex
+\end{document}

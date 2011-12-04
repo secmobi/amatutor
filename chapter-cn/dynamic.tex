@@ -1,0 +1,53 @@
+%!TEX encoding = UTF-8 Unicode
+\chapter{动态分析}
+
+\section{运行环境}
+\subsection{emulator}
+Android SDK中的模拟器emulator是样本动态运行的最佳环境。它的缺点和不足如下：
+\begin{itemize}
+\item 虽然可以模拟短信和通话，但并没有真正和移动通信网络相连
+\item 对依赖于ROM环境、依赖于特定手机型号的样本很难发挥作用
+\end{itemize}
+\subsection{手机}
+手机是样本运行的真实环境，并且可以与运营商网络直接相连。但硬件成本高。
+\section{设备管理}
+\subsection{adb}
+adb是连接PC与设备（模拟器或手机）的主要工具。它的功能包括：
+\begin{itemize}
+\item 交互式shell
+\item logcat
+\item 安装、卸载软件
+\item 传输调试信息
+\item 传输文件
+\end{itemize}
+\subsection{ddms}
+SDK中的ddms提供了一个细粒度的可视化调试环境。
+\section{网络分析}
+\subsection{tcpdump}
+为了捕获样本在运行期间产生的网络数据，需要对其抓包。主要工具是tcpdump。针对不同的场景，可以在三个不同的位置使用这一工具。
+\subsubsection{模拟器}
+模拟器emulator有一个没有公开的参数-tcpdump，在启动模拟器时，通过该参数指定一个本地文件路径，可以将模拟器运行期间产生的所有网络数据捕获到指定的pcap文件。
+\subsubsection{Android系统}
+有移植到Android底层的原生tcpdump工具，但其运行需要root权限。这一工具可以在模拟器中的系统里运行，但更多时候用于真实手机系统的抓包。
+\subsubsection{PC网络}
+当真实手机使用Wi-Fi通信，可以在无线网络或者其后端的物理网络抓包。
+\subsection{wireshark}
+对网络数据的分析一般使用wireshark这一传统的网络分析工具。最常用的功能是其filter。
+
+\section{行为模拟}
+\subsection{am}
+
+\subsection{DNS}
+
+\subsection{telnet}
+通过telnet可以与模拟器中的Android系统收发短信、拨打接听电话。
+\subsection{openBTS}
+对真实手机中的Android系统，可以通过架设一个OpenBTS系统来获取其发送短信、拨打电话的行为，并模拟任意的外部号码向其发送短信、拨打电话。
+
+\section{行为跟踪}
+\subsection{tanitdroid}
+\subsection{droidbox}
+
+\section{调试}
+\subsection{IDA}
+\subsection{AndBug}
