@@ -3,23 +3,54 @@
 
 \section{运行环境}
 \subsection{emulator}
-Android SDK中的模拟器emulator是样本动态运行的最佳环境。它的缺点和不足如下：
+Android SDK提供了用于开发的模拟器emulator，这也是动态执行样本的最佳环境。emulator可以与SDK中的很多工具（例如下文要介绍的adb、ddms、am等）完美配合，是首选的运行环境。
+
+Emulator中使用的Android系统称为AVD（Android Virtual Device），由SDK中android工具创建。虽然通过android工具中的AVD Manager也可以直接启动AVD，但还是有必要详细地了解emulator的命令行用法。
+
+emulator的主要用法在Android开发文档中有详细的说明：
+
+\href{http://developer.android.com/guide/developing/tools/emulator.html}{http://developer.android.com/guide/developing/tools/emulator.html}
+
+其中比较重要的几个选项包括：
+
+\begin{itemize}
+\item -avd，实际上是必选参数，用于指定AVD
+\item -dns-server，指定DNS服务器地址，可以将其指向自己搭建的DNS服务器，模拟样本运行依赖的网络环境
+\item -http-proxy，当样本访问被墙的服务器时，可以通过SSH隧道和本地HTTP端口转发，使用这一参数使其正常访问
+\item -debug
+\item -shell
+\item -logcat
+\end{itemize}
+
+emulator虽然强大，但也存在一些不足：
+
 \begin{itemize}
 \item 虽然可以模拟短信和通话，但并没有真正和移动通信网络相连
 \item 对依赖于ROM环境、依赖于特定手机型号的样本很难发挥作用
 \end{itemize}
+
 \subsection{手机}
-手机是样本运行的真实环境，并且可以与运营商网络直接相连。但硬件成本高。
+手机可以提供运行样本的真实环境，并且与运营商网络直接相连。但同时成本高。
+
+Google的Nexus系列手机（Nexus One、Nexus S、Nexus Prime）在版本更新、源码支持和可调试性上具有最多的天生优势。
+
+此外，还应考虑不同的网络制式问题。
+
 \section{设备管理}
 \subsection{adb}
-adb是连接PC与设备（模拟器或手机）的主要工具。它的功能包括：
+adb是连接PC与设备（模拟器或手机）的主要工具。其主要用法在Android开发文档中有详细的说明：
+
+\href{http://developer.android.com/guide/developing/tools/adb.html}{http://developer.android.com/guide/developing/tools/adb.html}
+
+它的功能包括：
 \begin{itemize}
-\item 交互式shell
-\item logcat
-\item 安装、卸载软件
-\item 传输调试信息
-\item 传输文件
+\item 提供了一个访问Android底层Linux系统的shell
+\item 通过push和pull在PC和设备之间传输文件
+\item 通过install和uninstall安装或卸载应用程序
+\item 转发对Android系统的调试指令和数据
+\item 通过logcat获取系统进程和应用程序输出的日志信息
 \end{itemize}
+
 \subsection{ddms}
 SDK中的ddms提供了一个细粒度的可视化调试环境。
 \section{网络分析}
@@ -34,6 +65,7 @@ SDK中的ddms提供了一个细粒度的可视化调试环境。
 \subsection{wireshark}
 对网络数据的分析一般使用wireshark这一传统的网络分析工具。最常用的功能是其filter。
 
+\subsection{android proxy}
 \section{行为模拟}
 \subsection{am}
 
@@ -47,6 +79,7 @@ SDK中的ddms提供了一个细粒度的可视化调试环境。
 \section{行为跟踪}
 \subsection{tanitdroid}
 \subsection{droidbox}
+\subsection{LBE}
 
 \section{调试}
 \subsection{IDA}
