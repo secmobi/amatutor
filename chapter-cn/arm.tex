@@ -1,0 +1,96 @@
+%!TEX encoding = UTF-8 Unicode
+\chapter{ARM漏洞利用}
+\section{学习的目的}
+目前绝大部分的智能移动终端使用ARM处理器。包括使用Android、Apple iOS、Symbian、Windows Mobile/Windows Phone、RIM OS等操作系统的手机和平板电脑。
+
+此外，ARM还被用于大量的嵌入式设备，在PC所不能及之处发挥着重要的作用。
+
+PC也可以使用ARM。几年前，Debian就发布了ARM版，2011年Ubuntu也开始支持ARM。Windows 8也将被微软移植到ARM上。
+
+ARM还将向服务器市场发展，目前还出现了基于ARM和GPU的超级计算机。
+
+可以看出，ARM设备无论是数量还是覆盖面都不逊色于PC，但ARM的安全问题，尤其是其上软件漏洞的问题，直到最近几年才开始引起人们的注意。
+\section{环境和工具}
+\subsection{容易获得的ARM系统}
+如果需要自己编写的ARM代码实际运行起来，或者调试这些代码，就需要一个能运行ARM代码的系统。ARM的开发板并不贵，但还有更简单的方法获得这样一个系统。
+\subsubsection{Android模拟器或手机}
+Android的底层是Linux内核，它运行于ARM之上。使用Android学习ARM漏洞利用的优点是：
+\begin{itemize}
+\item 如果就是要做Android安全，这自然是最佳的选择
+\item 有完善的开发工具和系统源码
+\item Android模拟器的硬件（边际）成本为0
+\end{itemize}
+但缺点也不少：
+\begin{itemize}
+\item 缺乏丰富的本地软件
+\item 不使用glibc库，而是自行开发的bionic，因此一些利用技巧在细节上会和Linux(on ARM)有差异
+\item 目标文件的编译，或者完全静态链接，或者用NDK开发，或者与Android源码一起编译，均显繁琐
+\end{itemize}
+
+无论如何，这种零成本的环境，还是强烈推荐常备着。
+\subsubsection{Debian虚拟机}
+Debian很早就开始了对ARM处理器的移植，目前几乎所有的软件都有了ARM版本，因此Linux用户常用的工具（例如objdump、gdb等）都可以直接在本地运行。
+
+另一方面，qemu模拟器已经可以完整地模拟ARM处理器及其硬件平台，可以用它在x86的PC上运行ARM版的Debian。
+
+可以直接从Debian的官网下载到其ARM安装包，但建议使用下列方案：
+\begin{center}
+\href{http://www.aurel32.net/info/debian_arm_qemu.php}{http://www.aurel32.net/info/debian\_arm\_qemu.php}
+\end{center}
+
+更省事的方案是直接下载已经安装好的qemu镜像，地址是：
+\begin{center}
+\href{http://people.debian.org/~aurel32/qemu/arm/}{http://people.debian.org/~aurel32/qemu/arm/}
+\end{center}
+\subsubsection{Toshiba AC100上网本}
+Toshiba AC100是目前唯一一款拥有标准全键盘的ARM笔记本。它最初是为Android设计，但爱好者已经将多个Ubuntu移植到该机器上。最终，Ubuntu官方从11.10版本开始专门为这一机器提供预编译版本和软件源。
+
+该机器在国内的型号为AC100-01B，已经不在出新货，可以从爱好者手中购买到二手的，2011年年底的行情为750元左右。
+
+这个笔记本是目前唯一一种可以最轻松获得的真实ARM机器。拥有前面Debian虚拟机的一切优点。
+\subsubsection{Nokia N900手机}
+另一个hack利器是Nokia N900手机，这款老手机配置较高，采用已经被抛弃的Maemo系统，该系统是基于Linux的手机操作系统，开放性较高。N900的键盘操作性不强，系统也适合于有hack精神的人玩。
+\subsection{交叉编译工具}
+进行嵌入式开发时，编译工具运行于一个平台，但生成另一个平台的指令，这种编译过程称之为交叉编译，所使用的编译工具又称之为工具链。
+
+在x86上编译ARM代码最常用的工具链由CodeSourcery公司免费提供，有Windows版本和Linux版本，其下载地址是：
+\begin{center}
+\href{http://www.mentor.com/embedded-software/sourcery-tools/sourcery-codebench/editions/lite-edition}{http://www.mentor.com/embedded-software/sourcery-tools/sourcery-codebench/editions/lite-edition}
+\end{center}
+
+此外，在基于Debian的系统（例如Ubuntu）中，也可以通过apt-get install gcc-arm-linux-gnueabi直接获得一个交叉编译gcc。
+
+Android的NDK中实际上也包含了完整的工具链，包括编译器、调试器、binutils等。它有Windows和Linux版本，下载地址是：
+\begin{center}
+\href{http://developer.android.com/sdk/ndk/index.html}{http://developer.android.com/sdk/ndk/index.html}
+\end{center}
+然而NDK也有不足，即只能为Android编译代码，也只能使用其提供的有限的库接口。对后面一个问题，如果需要编译使用了Andrid系统中较底层API的ARM程序，建议使用agcc工具，具体可以看我写的文章：
+\begin{center}
+\href{http://blog.claudxiao.net/2011/10/android_agcc/}{http://blog.claudxiao.net/2011/10/android\_agcc/}
+\end{center}
+\subsection{反汇编和反编译工具}
+工具链包含了很多的工具，如果静态反汇编，可以使用objdump；如果动态运行起来，在gdb中也可以使用disasm反汇编。
+
+最ARM反汇编支持最好的工具是IDA Pro，但它是商业软件，自由开源的反编译工具可以考虑radare：
+\begin{center}
+\href{http://www.radare.org/y/}{http://www.radare.org/y/}
+\end{center}
+或者smiasm：
+\begin{center}
+\href{http://code.google.com/p/smiasm/}{http://code.google.com/p/smiasm/}
+\end{center}
+但radare和smiasm对Thumb、Thumb-2指令集的支持都不强。
+
+事实上，ARM的指令编码并不复杂，自己写一个ARM反汇编器的工作量远小于想象。
+
+目前ARM的反编译工具只有随IDA Pro 6.2一起发布的Hex-Rays ARM Decompiler，是一款昂贵的收费软件。
+\subsection{远程调试}
+gdb远程调试
+
+IDA远程调试
+\section{ARM体系结构}
+\section{ARM漏洞利用的特点}
+\section{一个示例}
+\section{Ret2ZP攻击}
+\section{setuid漏洞分析}
+\section{zergRush漏洞分析}
