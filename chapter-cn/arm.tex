@@ -34,14 +34,10 @@ Debian很早就开始了对ARM处理器的移植，目前几乎所有的软件�
 另一方面，qemu模拟器已经可以完整地模拟ARM处理器及其硬件平台，可以用它在x86的PC上运行ARM版的Debian。
 
 可以直接从Debian的官网下载到其ARM安装包，但建议使用下列方案：
-\begin{center}
-\href{http://www.aurel32.net/info/debian_arm_qemu.php}{http://www.aurel32.net/info/debian\_arm\_qemu.php}
-\end{center}
+\hrefurl{http://www.aurel32.net/info/debian\_arm\_qemu.php}
 
 更省事的方案是直接下载已经安装好的qemu镜像，地址是：
-\begin{center}
-\href{http://people.debian.org/~aurel32/qemu/arm/}{http://people.debian.org/~aurel32/qemu/arm/}
-\end{center}
+\hrefurl{http://people.debian.org/~aurel32/qemu/arm/}
 \subsubsection{Toshiba AC100上网本}
 Toshiba AC100是目前唯一一款拥有标准全键盘的ARM笔记本。它最初是为Android设计，但爱好者已经将多个Ubuntu移植到该机器上。最终，Ubuntu官方从11.10版本开始专门为这一机器提供预编译版本和软件源。
 
@@ -53,32 +49,21 @@ Toshiba AC100是目前唯一一款拥有标准全键盘的ARM笔记本。它最�
 \subsection{交叉编译工具}
 进行嵌入式开发时，编译工具运行于一个平台，但生成另一个平台的指令，这种编译过程称之为交叉编译，所使用的编译工具又称之为工具链。
 
-在x86上编译ARM代码最常用的工具链由CodeSourcery公司免费提供，有Windows版本和Linux版本，其下载地址是：
-\begin{center}
-\href{http://www.mentor.com/embedded-software/sourcery-tools/sourcery-codebench/editions/lite-edition}{http://www.mentor.com/embedded-software/sourcery-tools/sourcery-codebench/editions/lite-edition}
-\end{center}
+在x86上编译ARM代码最常用的工具链由CodeSourcery公司免费提供，有Windows版本和Linux版本，其下载地址是：\hrefurl{http://www.mentor.com/embedded-software/sourcery-tools/sourcery-codebench/editions/lite-edition}
 
 此外，在基于Debian的系统（例如Ubuntu）中，也可以通过apt-get install gcc-arm-linux-gnueabi直接获得一个交叉编译gcc。
 
 Android的NDK中实际上也包含了完整的工具链，包括编译器、调试器、binutils等。它有Windows和Linux版本，下载地址是：
-\begin{center}
-\href{http://developer.android.com/sdk/ndk/index.html}{http://developer.android.com/sdk/ndk/index.html}
-\end{center}
+\hrefurl{http://developer.android.com/sdk/ndk/index.html}
 然而NDK也有不足，即只能为Android编译代码，也只能使用其提供的有限的库接口。对后面一个问题，如果需要编译使用了Andrid系统中较底层API的ARM程序，建议使用agcc工具，具体可以看我写的文章：
-\begin{center}
-\href{http://blog.claudxiao.net/2011/10/android_agcc/}{http://blog.claudxiao.net/2011/10/android\_agcc/}
-\end{center}
+\hrefurl{http://blog.claudxiao.net/2011/10/android\_agcc/}
 \subsection{反汇编和反编译工具}
 工具链包含了很多的工具，如果静态反汇编，可以使用objdump；如果动态运行起来，在gdb中也可以使用disasm反汇编。
 
 最ARM反汇编支持最好的工具是IDA Pro，但它是商业软件，自由开源的反编译工具可以考虑radare：
-\begin{center}
-\href{http://www.radare.org/y/}{http://www.radare.org/y/}
-\end{center}
+\hrefurl{http://www.radare.org/y/}
 或者smiasm：
-\begin{center}
-\href{http://code.google.com/p/smiasm/}{http://code.google.com/p/smiasm/}
-\end{center}
+\hrefurl{http://code.google.com/p/smiasm/}
 但radare和smiasm对Thumb、Thumb-2指令集的支持都不强。
 
 事实上，ARM的指令编码并不复杂，自己写一个ARM反汇编器的工作量远小于想象。
@@ -87,7 +72,9 @@ Android的NDK中实际上也包含了完整的工具链，包括编译器、调�
 \subsection{远程调试}
 gdb远程调试
 
-IDA远程调试
+IDA远程调试请参考：
+\hrefurl{http://bbs.pediy.com/showthread.php?t=141739}
+
 \section{ARM体系结构}
 \section{ARM漏洞利用的特点}
 \section{一个示例}
