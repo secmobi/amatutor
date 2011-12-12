@@ -76,6 +76,128 @@ IDA远程调试请参考：
 \hrefurl{http://bbs.pediy.com/showthread.php?t=141739}
 
 \section{ARM体系结构}
+\subsection{ARM指令集}
+ARM同时是三个不同事物的名字：
+\begin{itemize}
+\item 一个公司
+\item 一种体系结构
+\item 一系列CPU产品
+\end{itemize}
+这一章主要是指第二种含义。
+
+ARM是32位RISC结构，在ARMv5以后，基本采用Harvard结构，与传统的冯诺依曼结构不同的是，数据和代码被最大程度隔离了。既便于数据段保护的x86也有本质区别，ARM的代码和数据采用不同的总线传输（并因此获得并行而提速）。其数据段自然不能被执行。
+
+\subsubsection{寄存器}
+对程序员可见的寄存器主要是r0到r15共16个，不同的寄存器有不同的用途，将在下一节说明。
+
+此外，有程序状态寄存器PSR，其中包括算数逻辑运算标志、执行状态位、当前中断号等。
+
+\subsubsection{数据操作指令}
+基本形式是：
+\begin{lstlisting}[numbers=none]
+<opcode>{<cond>}{S} <Rd>, <Rn>{, <operand2>}
+\end{lstlisting}
+其中：
+\begin{itemize}
+\item[opcode] 比如MOV、ADD，与x86类似，具体可以查ARM手册
+\item[cond] 可选的条件码。条件执行是ARM的特色之一，几乎所有的ARM指令都可以加上条件码，实现条件执行。例如，EQ、LE等
+\item[S] 可选的S位，如果该条指令会更改PSR，则应置上S位
+\item[operand] 操作数可以是寄存器，也可以是一个右值（后面会说明），每条指令有多少操作数，分别是什么含义，应查手册
+\end{itemize}
+
+ARM中的右值操作数可以是一个寄存器、一个立即数，或者一个寄存器的移位。例如，右值R1, LSL \#2由R2的值逻辑左移2位得到，右值R1, ASR R3由R1的值算术右移R3位得到。
+
+\subsubsection{分支跳转指令}
+\begin{itemize}
+\item[B] 直接跳转到一个地址，唯一的参数是12位立即数，与x86中的jmp功能一样
+\item[BL] 将下一条指令地址（即返回地址）赋给LR寄存器，然后跳转到参数指定的地址，参数是一个12位立即数。BL与x86中的call功能一样
+\item[BX] 参数是一个寄存器，跳转到该寄存器指向的地址
+\end{itemize}
+所有这些分支跳转指令都可以使用条件码，成为相应的条件跳转指令。
+
+\subsubsection{内存访问指令1}
+ARM使用简单的访存模型，所有内存读写都通过LDR和STR两条指令完成，而且只能在寄存器与内存之间读写，不能直接从内存读写到内存。LDR和STR都有一个可选的后缀B，不选时按字（4字节）读写，选择B时按字节读写。其第一个参数是寄存器，第二个参数是内存地址。
+
+\subsubsection{寻址方式}
+第一类寻址方式：
+\begin{itemize}
+\item 寄存器加上立即数偏移：[reg, \#$\pm$imm12]
+\item 寄存器加上寄存器偏移：[reg, $\pm$reg]
+\item 寄存器a加上移位后的寄存器b偏移：[rega, $\pm$regb, shift]
+\end{itemize}
+这些地址符号后面可以选择一个叹号：!。如果加上，表明先根据寻址规则修改寄存器，然后根据寄存器中的值访问内存；如果不加叹号，表示直接根据寻址规则访问内存。
+
+第二类寻址方式则是先根据寄存器中的值访问内存，然后按照相应的规则更新寄存器：
+\begin{itemize}
+\item 访存后，寄存器加上立即数：[reg], \#$\pm$imm12
+\item 访存后，寄存器加上寄存器：[reg], $\pm$reg
+\item 访存后，寄存器a加上移位后的寄存器b：[rega], $\pm$regb, shift
+\end{itemize}
+
+\subsubsection{内存访问指令2}
+还可以一次性读写多个字：
+\begin{lstlisting}[numbers=none]
+LDMcdum reg!, mreg
+STMcdum reg!, mreg
+\end{lstlisting}
+其中：
+\begin{itemize}
+\item[cd] 可选的条件
+\item[um] 访问模式，分别为IA读写后增加寄存器值、DA读写后减少寄存器值、IB读写前增加寄存器值、DB读写后增加寄存器值
+\item[!] 表示会修改寄存器，修改方法参考um
+\item[mreg] 支持一次指令多个寄存器，例如{R0-R3, R7, R10}
+\end{itemize}
+
+\subsection{ATPCS}
+\subsubsection{名词解释}
+例程(routine)、子例程(subroutine)：对于一段可以调用、可以返回、保证栈平衡的代码片段，例程指调用者，子例程指被调用者。
+
+过程(procedure)：不返回结果值的例程。
+
+函数(function)：返回结果值的例程。
+
+变量大小、内存对齐、字节序、复合类型等略。
+\subsubsection{寄存器的用途}
+
+ARM中有16个通用寄存器r0 – r15。其中：
+\begin{itemize}
+\item[r0 – r3] 用于传递参数、返回函数结果，因此又名a0 – a3。在例程内部也被用于保存临时结果
+
+\item[r4 – r11] 用于保存例程内的局部变量值，又名v0 – v8。其中，r9(v6)是一个平台相关的值，不同的ARM平台必须为这个寄存器赋予特殊的含义
+
+\item[r12 – r15] 有专门的用途，后面介绍。常用别名：IP、SP、LR、PC
+\end{itemize}
+\subsubsection{栈结构}
+
+r13（SP）是栈指针。ARM中使用向下的满栈（full-descending），即SP始终指向最后一个已进入栈的数据，每次压栈时，SP自减需要的内存大小，然后将值存到SP新的位置。
+
+也就是说，对栈的push相当于STMDB，对栈的pop相当于LDMIA，但一般不用这个后缀，而用STMFD和LDMFD。
+
+SP的值应在栈的有效区间内，且mod 4 = 0。栈上有例程的调用帧结构。不要轻易地修改这个值。
+
+\subsubsection{子例程调用}
+
+ARM和Thumb指令集均有一个BL指令，它的操作是：将BL指令顺序下一条指令的地址（即返回地址）送入链接寄存器LR(r14)，然后将调用的目的地址（即子例程地址）送入寄存器PC(r15)。
+
+如果在Thumb中调用BL，则LR的第0位被设为1，否则被设为0。（因为指令地址要4字节对齐，因此LR的第0和1位都没有用。）
+
+子例程返回很简单，将LR的值送入PC即可。
+
+任何模拟上述过程的指令序列也会起到BL的效果，例如：mov LR, PC; BX r4。注意，任何时候读PC，得到的值是当前指令地址+8（why?请自己google）。
+
+\subsubsection{结果返回}
+\begin{itemize}
+\item 不超过4字节的结果，一律用r0返回
+
+\item 超过4字节的基本类型，继续用r1, r2, r3
+
+\item 超过4字节的复合类型，或动态大小的结果，存储在内存中，并将其地址作为调用参数之一传入
+\end{itemize}
+\subsubsection{参数传递}
+
+使用r0 – r3传递参数，如果不够，使用栈。
+
+语言中的数据类型会按照相关标准转化为机器数据类型。
 \section{ARM漏洞利用的特点}
 \section{一个示例}
 \section{Ret2ZP攻击}
