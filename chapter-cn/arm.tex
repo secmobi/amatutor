@@ -29,7 +29,7 @@ Android的底层是Linux内核，它运行于ARM之上。使用Android学习ARM�
 
 无论如何，这种零成本的环境，还是强烈推荐常备着。
 \subsubsection{Debian虚拟机}
-Debian很早就开始了对ARM处理器的移植，目前几乎所有的软件都有了ARM版本，因此Linux用户常用的工具（例如objdump、gdb等）都可以直接在本地运行。
+Debian早在2000年就开始了对ARM处理器的移植，目前几乎所有的软件都有了ARM版本，因此Linux用户常用的工具（例如objdump、gdb等）都可以直接在本地运行。
 
 另一方面，qemu模拟器已经可以完整地模拟ARM处理器及其硬件平台，可以用它在x86的PC上运行ARM版的Debian。
 
@@ -162,9 +162,7 @@ STMcdum reg!, mreg
 ARM中有16个通用寄存器r0 – r15。其中：
 \begin{itemize}
 \item[r0 – r3] 用于传递参数、返回函数结果，因此又名a0 – a3。在例程内部也被用于保存临时结果
-
 \item[r4 – r11] 用于保存例程内的局部变量值，又名v0 – v8。其中，r9(v6)是一个平台相关的值，不同的ARM平台必须为这个寄存器赋予特殊的含义
-
 \item[r12 – r15] 有专门的用途，后面介绍。常用别名：IP、SP、LR、PC
 \end{itemize}
 \subsubsection{栈结构}
@@ -188,9 +186,7 @@ ARM和Thumb指令集均有一个BL指令，它的操作是：将BL指令顺序�
 \subsubsection{结果返回}
 \begin{itemize}
 \item 不超过4字节的结果，一律用r0返回
-
 \item 超过4字节的基本类型，继续用r1, r2, r3
-
 \item 超过4字节的复合类型，或动态大小的结果，存储在内存中，并将其地址作为调用参数之一传入
 \end{itemize}
 \subsubsection{参数传递}
@@ -199,7 +195,16 @@ ARM和Thumb指令集均有一个BL指令，它的操作是：将BL指令顺序�
 
 语言中的数据类型会按照相关标准转化为机器数据类型。
 \section{ARM漏洞利用的特点}
+与x86相比，ARM下要做到漏洞利用存在以下问题：
+\begin{itemize}
+\item 从v5开始，ARM普遍采用哈佛结构，数据段不可执行
+\item 函数调用时，参数传递不再通过栈，而是使用寄存器
+\item 返回地址按照ATPCS是通过LR寄存器传递，大部分被掉用函数会在其代码开始时将LR再次保存到栈上，在返回前从栈中直接取回至PC寄存器
+\item 由于体系结构的本质区别，作为跳板的指令无法使用x86下常见的那些，而要根据实际需要来寻找
+\end{itemize}
+但也有好的消息。在Windows/x86平台引入DEP以后，因为代码部分的不可执行，出现的ret2libc和ROP等技巧，其思路也可以用于ARM。此外，ARM单条指令的描述能力是超过x86的，所以要寻找到合适的跳板指令序列并不是太难。
 \section{一个示例}
+下面我们看一个实际的例子。
 \section{Ret2ZP攻击}
 \section{setuid漏洞分析}
 \section{zergRush漏洞分析}
