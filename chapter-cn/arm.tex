@@ -203,6 +203,8 @@ ARM和Thumb指令集均有一个BL指令，它的操作是：将BL指令顺序�
 \item 由于体系结构的本质区别，作为跳板的指令无法使用x86下常见的那些，而要根据实际需要来寻找
 \end{itemize}
 但也有好的消息。在Windows/x86平台引入DEP以后，因为代码部分的不可执行，出现的ret2libc和ROP等技巧，其思路也可以用于ARM。此外，ARM单条指令的描述能力是超过x86的，所以要寻找到合适的跳板指令序列并不是太难。
+
+ARM漏洞利用是一个新的领域，目前参考文献较少，主要有\cite{arm_exploiting_linux}、\cite{arm_stack_exploitation}、\cite{arm_exploitation}、\cite{arm_ropmap}和\cite{arm_alphanumeric}。
 \section{一个示例}
 下面我们看一个实际的例子。
 \section{Ret2ZP攻击}
