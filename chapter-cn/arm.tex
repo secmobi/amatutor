@@ -209,3 +209,108 @@ ARM漏洞利用是一个新的领域，目前参考文献较少，主要有\cite
 下面我们看一个实际的例子。
 \section{Ret2ZP攻击}
 \section{zergRush漏洞分析}
+\subsection{背景和原理}
+Revolutionary工具开发小组在2011年10月发布了一个在Android 2.2和2.3上获得root权限的方法\footnote{网址：\href{http://forum.xda-developers.com/showthread.php?t=1296916}{http://forum.xda-developers.com/showthread.php?t=1296916}}，并公布了漏洞利用代码zergRush.c\footnote{网址：\href{https://github.com/revolutionary/zergRush/blob/master/zergRush.c}{https://github.com/revolutionary/zergRush/blob/master/zergRush.c}}。tomken\_zhang已经在其博客上发表了两篇文章对其分析\footnote{地址分别是：\href{http://blog.csdn.net/tomken\_zhang/article/details/6866260}{http://blog.csdn.net/tomken\_zhang/article/details/6866260}和\href{http://blog.csdn.net/tomken\_zhang/article/details/6870104}{http://blog.csdn.net/tomken\_zhang/article/details/6870104}}。本文做进一步梳理和补充。
+
+产生漏洞的主要原因是：具有root权限的vold进程使用了libsysutils.so库，该库的一个函数存在栈溢出，因此可以在root权限执行输入的shellcode。
+
+存在漏洞的函数为FrameworkListener::dispatchCommand，位于源码的$$\backslash system\backslash core\backslash libsysutils\backslash src\backslash FrameworkListener.cpp$$中，其中的局部变量argv为固定大小的指针数组，当输入参数的数量超过其大小时，会越界写入栈中。
+
+zergRush.c成功地利用了这一漏洞，并进一步：
+\begin{enumerate}
+\item 在/data/local/tmp/下增加一个置了S位的shell；
+\item 使Android中后续启动的adb进程以root权限运行。
+\end{enumerate}
+
+其中第二步的方法是：adb进程最初以root运行，之后调用setuid()降低权限\footnote{\href{http://blog.claudxiao.net/2011/04/android-adb-setuid/}{http://blog.claudxiao.net/2011/04/android-adb-setuid/}}降权之前，会判断系统属性ro.kernel.qemu，如果该属性位1，则不降权。
+
+\subsection{函数功能概要}
+
+\begin{itemize}
+\item[die] 打印出错信息，退出程序
+\item[copy] 将一个文件拷贝为另一个文件
+\item[remount\_data] 重新mount一个分区
+\item[find\_symbol] 查找libc.so中导出函数的内存地址
+\item[check\_addr] 确定一个地址中是否包含被禁止的字节
+\item[do\_fault] 构造溢出数据和exploit，并通过socket发送给vold进程
+\item[find\_rop\_gadgets] 从libc.so中寻找两个特殊指令序列的地址
+\item[checkcrash] 调用do\_fault，判断其溢出产生的调试信息中是否包含sp
+\item[find\_stack\_addr] 调用do\_fault，从其溢出产生的调试信息中定位栈地址
+\item[do\_root] 将shell文件的S位置上，并设置ro.kernel.qemu属性为1
+\item[main] 主函数，完成漏洞利用的所有步骤
+\end{itemize}
+
+\subsection{main函数}
+\lstinputlisting[language=c,caption={zergRush的main函数}, firstnumber=387]{code/zergRush.main.c}
+\begin{itemize}
+\item[395-396] 如果当前程序是以root权限运行，并且程序名为boomsh，则调用do\_root，执行附加的两步操作
+\item[402-405] 将自身拷贝至/data/local/tmp/boomsh，并设置其权限为0711，将/system/bin/sh拷贝至/data/local/tmp/sh。
+\item[407-408] 根据/system/bin/vold文件的大小获得其对应进程中堆的大概地址heap\_addr。
+\item[410-421] 根据系统版本对heap\_addr做微调。如果不是2.2或2.3系统，退出。
+\item[423-428] 查询libc.so中system调用的地址，保存至system\_ptr。
+\item[430-443] 通过checkcrash函数，判断buffsz为16或24时能否成功利用。这里buffsz实际指libsysutils中造成栈溢出的指针数组argv的容量。
+\item[445-484] 调用find\_stack\_addr函数，确定栈地址。反复尝试五次，每次对堆地址heap\_addr做微调，直至成功。判断得到的栈地址是否有效。
+\item[486-487] kill掉当前的logcat进程，删除/data/local/tmp/crashlog文件。
+\item[489-491] 调用find\_rop\_gadgets函数，在libc.so中寻找指令序列add sp, \#108; pop {r4-r7, pc}，将地址保存在stack\_pivot；寻找指令pop {r0, pc}，将地址保存在pop\_r0。
+\item[493-514] 尝试三次，每次调用do\_fault，之后判断/data/local/tmp/sh的S位是否置上，一旦置上，则利用成功；否则，微调栈地址heap\_addr（加减16）。
+\item[516-533] 一旦利用成功，并且系统的ro.kernel.qemu属性已经被置为1，则利用完成，重启的adb进程即可获得root权限。
+\end{itemize}
+
+\subsection{do\_root函数}
+\lstinputlisting[language=c,caption={zergRush的do\_root函数}, firstnumber=377]{code/zergRush.doroot.c}
+\begin{itemize}
+\item[395-396] 若当前程序是以root权限执行的/data/local/tmp/boomsh，则调用do\_root函数。
+\item[379] 重新mount目录/data。
+\item[380] 将/data/local/tmp/sh的所有者设置为root。
+\item[381] 将/data/local/tmp/sh的属性设置为04711，注意其S位被置位。
+\item[382] 设置系统的ro.kernel.qemu属性为1。
+\end{itemize}
+
+\subsection{find\_stack\_addr函数}
+\lstinputlisting[language=c,caption={zergRush的find\_stack\_addr函数}, firstnumber=324]{code/zergRush.findstackaddr.c}
+\begin{itemize}
+\item[332-333] 清空logcat缓存，删除老的/data/local/tmp/crashlog日志文件。
+\item[335-340] 重启一个logcat，将其日志输出至/data/local/tmp/crashlog文件。
+\item[342-349] 调用一次do\_fault，等待3秒后，读取crashlog文件中的logcat日志。
+\item[350-366] 搜索logcat日志中的debug信息，” 4752455a”之前8个字节为栈基址stack\_addr，” 5245564f”往之前8个字节为over？，” sp “之后5个字节为栈顶sp。
+\item[370-371] jumpsz = over – sp
+\end{itemize}
+
+\subsection{do\_fault函数}
+\lstinputlisting[language=c,caption={zergRush的do\_fault函数}, firstnumber=163]{code/zergRush.dofault.c}
+\begin{itemize}
+\item[165] buf是最后发送至vold的shellcode。
+\item[169-181] padding是shellcode中的一段填充内容，全部为Z，无意义。长度为padding\_sz + 12。padding\_sz由108减去jumpsz计算得到。
+\item[183-184] 通过socket连到本地的vold进程。
+\item[186-190] 将栈地址stack\_addr、指令序列1地址stack\_pivot、指令序列2地址pop\_r0、system调用地址system\_ptr、堆地址heap\_addr，分别填充到相应的字符串中。
+\item[192-198] 开始构造shellcode。注意第195行，这里根据buffsz，也就是尝试出来的溢出数组argv的大小，构造相应数量的输入参数。
+\item[200-201] 计算一下/data/local/tmp/boomsh字符串将会出现的地址，这个字符串会作为shellcode的一部分发到栈中，因此可以根据栈地址和偏移计算出来，最后作为system调用的参数。
+\item[208] 把上述地址转为字符串s\_bsh\_addr。
+\item[209] 进一步构造shellcode，包括栈地址、堆地址、填充、指令序列2地址、boomsh字符串地址、system调用地址、boomsh字符串等。
+\item[214] 将shellcode发送至vold进程。
+\end{itemize}
+
+\subsection{总结}
+
+综合来看，zergRush.c的思路如下：
+\begin{enumerate}
+\item 计算出vold的堆地址
+\item 查到system调用的地址
+\item 尝试出栈缓冲区大小
+\item 通过崩溃产生的调试信息，取得栈地址和栈结构信息
+\item 在libc.so中找寻跳板指令
+\item 根据缓冲区大小、栈结构和上述各种地址，构造出有效的shellcode来，发送到vold
+\item shellcode在vold中以root权限运行，它通过system调用运行该利用程序的一个副本boomsh
+\item 程序副本boomsh以root权限运行时，会置上shell程序的S位，并设置系统属性ro.kernel.qemu
+\item 结束掉adb，后续开启的adb进程将具有root权限
+\end{enumerate}
+
+非常典型的缓冲区溢出利用思路，但与PC相比，利用了android中几个特殊之处：
+\begin{enumerate}
+\item vold的溢出会在adb logcat中输出调试信息，这些信息说明了其内存结构，而其他程序可以读取到这些信息；
+\item 在ARM架构下，跳板指令有了更多的选择，ret2libc的攻击也可能更容易实现
+\item adb的降低权限过程又一次被利用。
+\end{enumerate}
+
+最后，我们没有进一步分析shellcode的详细结构和跳转过程，难度已经不大。反而是libsysutils.so这个通用库中的溢出有没有可能造成其他问题，需要进一步分析。
+
