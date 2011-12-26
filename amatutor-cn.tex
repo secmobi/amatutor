@@ -18,17 +18,19 @@
 
 % 源码高亮环境
 \definecolor{gray}{rgb}{0.9,0.9,0.9}
+\definecolor{darkgreen}{RGB}{47, 79, 47}
+\newfontfamily{\lstfamily}[Scale=.85]{Monaco}
 \usepackage{listings}
 \lstset{
-	language=Java, 
-	basicstyle=\ttfamily\small, 
+	language=C, 
+	basicstyle=\lstfamily, 
 	keywordstyle=\color{blue}, 
 	commentstyle=\color{darkgreen}, 
 	stringstyle=\color{red}, 
 	backgroundcolor=\color{gray},
 	frame=single,
 	numbers=left, 
-	numberstyle=\tiny,
+	numberstyle=\lstfamily\tiny,
 	stepnumber=1,  
 	xleftmargin=-1em,
 	xrightmargin=-3em, 
