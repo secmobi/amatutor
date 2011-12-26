@@ -206,8 +206,51 @@ ARM和Thumb指令集均有一个BL指令，它的操作是：将BL指令顺序�
 
 ARM漏洞利用是一个新的领域，目前参考文献较少，主要有\cite{arm_exploiting_linux}、\cite{arm_stack_exploitation}、\cite{arm_exploitation}、\cite{arm_ropmap}和\cite{arm_alphanumeric}。
 \section{一个示例}
-下面我们看一个实际的例子。
+\subsection{源代码}
+下面我们看一个实际的例子。这个程序来自于\cite{arm_exploiting_linux}，但因为编译源码使用的系统和编译器不同，后面的细节与原文有较大差异。
+\lstinputlisting[language=c,caption={存在漏洞的示例代码}]{code/arm.test.c}
+
+\subsection{反汇编结果}
+在ARM的Debian系统下，用gcc4.4编译，用gdb调试，反汇编vuln函数：
+
+\lstinputlisting[caption={vuln函数的反汇编结果}]{code/arm.test.dis1.asm}
+
+逐一解析这些代码，以熟悉ARM指令。
+
+在第3行，先后push了r11和lr寄存器。r11又称fp（帧指针寄存器），相当于x86下的ebp寄存器。它在该函数中使用了，所以将原来的值保存在栈中。lr前面有介绍，在调用该函数时将返回地址保存在了其中，因为在vuln()中还要bl到strcpy，还要用到lr，所以将lr保存在栈中，直到函数返回时（13行），才从栈中取出。这一点需要额外说明，虽然ATPCS规定由lr保存返回地址，且各编译器也遵循了这一约定，但在实现中，由于存在漏洞的函数其内部必然调用了其他函数，因此lr一定会在该函数的初始化时被保存到栈上，因此溢出是一定可以覆盖到它的。也就是说，虽然ATPCS的返回方法和x86的约定不同，但实际情况还是差不多。
+
+第4行，给r11(fp)赋值。再次强调，ARM使用向下递减的满栈，因此r11指向sp加4，即栈顶第二个元素的地址。
+
+第5行，sp自减24，开出了24字节的局部变量缓冲区。注意这里的\#24的立即数表示是十进制，而不是十六进制。
+
+第6、7、10行，r0传给r3，r3传给r1。回忆ATPCS，r0中存着vuln()函数的第一个参数，即char *arg的值。调用strcpy时，r1是第二个参数，因此，将arg作为了strcpy的第二个参数。
+
+第8、9行，在局部变量缓冲区取了12个字节的缓冲，给r0，作为strcpy的第一个参数。有人会奇怪，在源码中我们为buff申请了10个字节的缓冲，为什么这里成了12。这是因为ARM的内存访问都是4字节对齐的。
+
+第11行，调用了strcpy函数。
+
+第12行，恢复栈指针。
+
+第13、14行，恢复r11原来的值，恢复lr的值，跳转至lr以返回。但很多编译器不这么实现，而是直接pop \{r11, pc\}。
+
+可以看到，如果在strcpy时，输入的数据超过12个字节，就会逐步覆盖栈中保存的原来的r11（超过4字节）和lr（再超过4字节）。而lr会在后面取出作为函数返回地址。这样，就有可能通过覆盖栈来改变指令执行流程。
+
+\subsection{栈结构}
+我们再来看看当正常运行到上面第12行，即执行完strcpy后，栈的情况。我们用1234作为参数。
+
+\lstinputlisting[caption={正常拷贝后的栈结构}]{code/arm.test.dis2.asm}
+
+可以看到，参数1234已经出现在栈上（0xbedb9794处），而返回地址位于0xbedb97a4处，为0x0084ac。如果输入数据越界，则其17到20字节将正好覆盖这一返回地址。这个结论与我们前面对代码的分析是一致的。
+
+\subsection{构造溢出}
+从上面的栈结构，我们可以构造溢出数据了。如下所示：
+
+\lstinputlisting[caption={构造溢出数据}]{code/arm.test.dis3.asm}
+
+我们先看下donuts()函数的地址，为0x00008438，再考虑不破坏其他栈结构，因此构造了长为20字节的输入数据。其前12个字节随便填充，13-16字节为原来栈上的r11值，17-20字节为我们想要的返回地址，即donuts()函数的地址。最后，可以看到donuts()函数确实运行了起来，程序也正常退出了。
+
 \section{Ret2ZP攻击}
+Ret2ZP攻击的概念主要在\cite{arm_stack_exploitation}和\cite{arm_exploitation}中提出。
 \section{zergRush漏洞分析}
 \subsection{背景和原理}
 Revolutionary工具开发小组在2011年10月发布了一个在Android 2.2和2.3上获得root权限的方法\footnote{网址：\href{http://forum.xda-developers.com/showthread.php?t=1296916}{http://forum.xda-developers.com/showthread.php?t=1296916}}，并公布了漏洞利用代码zergRush.c\footnote{网址：\href{https://github.com/revolutionary/zergRush/blob/master/zergRush.c}{https://github.com/revolutionary/zergRush/blob/master/zergRush.c}}。tomken\_zhang已经在其博客上发表了两篇文章对其分析\footnote{地址分别是：\href{http://blog.csdn.net/tomken\_zhang/article/details/6866260}{http://blog.csdn.net/tomken\_zhang/article/details/6866260}和\href{http://blog.csdn.net/tomken\_zhang/article/details/6870104}{http://blog.csdn.net/tomken\_zhang/article/details/6870104}}。本文做进一步梳理和补充。
@@ -251,7 +294,7 @@ zergRush.c成功地利用了这一漏洞，并进一步：
 \item[430-443] 通过checkcrash函数，判断buffsz为16或24时能否成功利用。这里buffsz实际指libsysutils中造成栈溢出的指针数组argv的容量。
 \item[445-484] 调用find\_stack\_addr函数，确定栈地址。反复尝试五次，每次对堆地址heap\_addr做微调，直至成功。判断得到的栈地址是否有效。
 \item[486-487] kill掉当前的logcat进程，删除/data/local/tmp/crashlog文件。
-\item[489-491] 调用find\_rop\_gadgets函数，在libc.so中寻找指令序列add sp, \#108; pop {r4-r7, pc}，将地址保存在stack\_pivot；寻找指令pop {r0, pc}，将地址保存在pop\_r0。
+\item[489-491] 调用find\_rop\_gadgets函数，在libc.so中寻找指令序列add sp, \#108; pop \{r4-r7, pc\}，将地址保存在stack\_pivot；寻找指令pop \{r0, pc\}，将地址保存在pop\_r0。
 \item[493-514] 尝试三次，每次调用do\_fault，之后判断/data/local/tmp/sh的S位是否置上，一旦置上，则利用成功；否则，微调栈地址heap\_addr（加减16）。
 \item[516-533] 一旦利用成功，并且系统的ro.kernel.qemu属性已经被置为1，则利用完成，重启的adb进程即可获得root权限。
 \end{itemize}
@@ -272,7 +315,7 @@ zergRush.c成功地利用了这一漏洞，并进一步：
 \item[332-333] 清空logcat缓存，删除老的/data/local/tmp/crashlog日志文件。
 \item[335-340] 重启一个logcat，将其日志输出至/data/local/tmp/crashlog文件。
 \item[342-349] 调用一次do\_fault，等待3秒后，读取crashlog文件中的logcat日志。
-\item[350-366] 搜索logcat日志中的debug信息，” 4752455a”之前8个字节为栈基址stack\_addr，” 5245564f”往之前8个字节为over？，” sp “之后5个字节为栈顶sp。
+\item[350-366] 搜索logcat日志中的debug信息，"4752455a"之前8个字节为栈基址stack\_addr，"5245564f"往之前8个字节为over，"sp"之后5个字节为栈顶sp。
 \item[370-371] jumpsz = over – sp
 \end{itemize}
 
@@ -306,11 +349,11 @@ zergRush.c成功地利用了这一漏洞，并进一步：
 \end{enumerate}
 
 非常典型的缓冲区溢出利用思路，但与PC相比，利用了android中几个特殊之处：
-\begin{enumerate}
+\begin{itemize}
 \item vold的溢出会在adb logcat中输出调试信息，这些信息说明了其内存结构，而其他程序可以读取到这些信息；
 \item 在ARM架构下，跳板指令有了更多的选择，ret2libc的攻击也可能更容易实现
 \item adb的降低权限过程又一次被利用。
-\end{enumerate}
+\end{itemize}
 
 最后，我们没有进一步分析shellcode的详细结构和跳转过程，难度已经不大。反而是libsysutils.so这个通用库中的溢出有没有可能造成其他问题，需要进一步分析。
 
