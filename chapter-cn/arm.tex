@@ -211,7 +211,13 @@ ARM漏洞利用是一个新的领域，目前参考文献较少，主要有\cite
 \lstinputlisting[language=c,caption={存在漏洞的示例代码}]{code/arm.test.c}
 
 \subsection{反汇编结果}
-在ARM的Debian系统下，用gcc4.4编译\footnote{注意，如果使用的Toshiba AC100做实验，在Ubuntu下，从6.10开始gcc默认开启了-fstack-protector开关，存在不安全拷贝函数调用的函数，在退出前会做栈有效性检测（\_\_stack\_chk\_fail），因此进一步的漏洞利用会失败。应该在gcc编译时使用-fno-stack-protector来关闭这个开关。}，用gdb调试，反汇编vuln函数：
+如果使用的Toshiba AC100做实验，在Ubuntu下，从6.10开始gcc默认开启了-fstack-protector开关，存在不安全拷贝函数调用的函数，在退出前会做栈有效性检测（\_\_stack\_chk\_fail），因此进一步的漏洞利用会失败。应该在gcc编译时使用-fno-stack-protector来关闭这个开关。此外，在Toshiba AC100中，gcc默认将目标代码优化为Thumb指令集。后面的分析是基于ARM指令集的。可以给gcc加上-marm开关来强制指定其编译为ARM指令集。最后，也就是说，在AC100下，应该这样编译：
+
+\begin{lstlisting}[language=bash, numbers=none]
+  $ gcc test.c -o test -marm -fno-stack-protector
+\end{lstlisting}
+
+在编译完成后，就可以使用gdb来反汇编vuln()函数了。下面是在ARMEL的Debian系统下，用gcc4.4编译的结果：
 
 \lstinputlisting[caption={vuln函数的反汇编结果}]{code/arm.test.dis1.asm}
 
