@@ -9,7 +9,7 @@ void donuts() {
 
 void vuln(char *arg) {
 	char buff[10];
-	strcpy(buf, arg);
+	strcpy(buff, arg);
 }
 
 int main(int argc, char **argv) {

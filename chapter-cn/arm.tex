@@ -211,7 +211,7 @@ ARM漏洞利用是一个新的领域，目前参考文献较少，主要有\cite
 \lstinputlisting[language=c,caption={存在漏洞的示例代码}]{code/arm.test.c}
 
 \subsection{反汇编结果}
-在ARM的Debian系统下，用gcc4.4编译，用gdb调试，反汇编vuln函数：
+在ARM的Debian系统下，用gcc4.4编译\footnote{注意，如果使用的Toshiba AC100做实验，在Ubuntu下，从6.10开始gcc默认开启了-fstack-protector开关，存在不安全拷贝函数调用的函数，在退出前会做栈有效性检测（\_\_stack\_chk\_fail），因此进一步的漏洞利用会失败。应该在gcc编译时使用-fno-stack-protector来关闭这个开关。}，用gdb调试，反汇编vuln函数：
 
 \lstinputlisting[caption={vuln函数的反汇编结果}]{code/arm.test.dis1.asm}
 
@@ -250,7 +250,15 @@ ARM漏洞利用是一个新的领域，目前参考文献较少，主要有\cite
 我们先看下donuts()函数的地址，为0x00008438，再考虑不破坏其他栈结构，因此构造了长为20字节的输入数据。其前12个字节随便填充，13-16字节为原来栈上的r11值，17-20字节为我们想要的返回地址，即donuts()函数的地址。最后，可以看到donuts()函数确实运行了起来，程序也正常退出了。
 
 \section{Ret2ZP攻击}
-Ret2ZP攻击的概念主要在\cite{arm_stack_exploitation}和\cite{arm_exploitation}中提出。
+上述示例只是一个演示性的栈溢出。如果要发起真实攻击，跳到一个本地函数并不是我们需要的。
+
+在x86中，最初的做法是将shellcode作为数据传给程序，程序将其放在溢出后的栈上。当函数退出时，跳转到栈上执行shellcode。在引入DEP后，栈上数据不可执行，从而产生了包括ret2libc在内的ROP技术，即跳转到一些系统API或库函数，通过控制这些API的参数实现一定的能力。
+
+在x86上，参数是通过栈传递的。也就是说，通过栈溢出几乎一定可以把参数安置好，并调用其他函数。但在ARM上这一招没法直接用了。ATPCS规定使用r0 - r3这四个寄存器传递参数，而通常栈溢出是无法影响到这些寄存器的。只能寄希望于在溢出后，存在这类指令序列：将栈上的值拷贝至r0 - r3中。
+
+以此思想为基础，Avraham提出了所谓的Ret2ZP(Return to Zero Protection)的攻击方法，主要在\cite{arm_stack_exploitation}和\cite{arm_exploitation}中进行了阐述。
+
+\subsection{ret2libc}
 \section{zergRush漏洞分析}
 \subsection{背景和原理}
 Revolutionary工具开发小组在2011年10月发布了一个在Android 2.2和2.3上获得root权限的方法\footnote{网址：\href{http://forum.xda-developers.com/showthread.php?t=1296916}{http://forum.xda-developers.com/showthread.php?t=1296916}}，并公布了漏洞利用代码zergRush.c\footnote{网址：\href{https://github.com/revolutionary/zergRush/blob/master/zergRush.c}{https://github.com/revolutionary/zergRush/blob/master/zergRush.c}}。tomken\_zhang已经在其博客上发表了两篇文章对其分析\footnote{地址分别是：\href{http://blog.csdn.net/tomken\_zhang/article/details/6866260}{http://blog.csdn.net/tomken\_zhang/article/details/6866260}和\href{http://blog.csdn.net/tomken\_zhang/article/details/6870104}{http://blog.csdn.net/tomken\_zhang/article/details/6870104}}。本文做进一步梳理和补充。
