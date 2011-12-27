@@ -7,6 +7,8 @@ BIB = bibtex
 
 all: $(texfile).pdf
 
+pdf: all
+
 $(texfile).pdf: $(texfile).tex $(reffile).bib $(subdir)/*.tex
 	$(TEX) $(texfile).tex
 	$(BIB) $(texfile).aux
