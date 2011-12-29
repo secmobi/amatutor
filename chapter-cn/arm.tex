@@ -226,7 +226,7 @@ ARM和Thumb指令集均有一个BL指令，它的操作是：将BL指令顺序�
 \end{itemize}
 但也有好的消息。在Windows/x86平台引入DEP以后，因为代码部分的不可执行，出现的ret2libc和ROP等技巧，其思路也可以用于ARM。此外，ARM单条指令的描述能力是超过x86的，所以要寻找到合适的跳板指令序列并不是太难。
 
-ARM漏洞利用是一个新的领域，目前参考文献较少，主要有\cite{arm_exploiting_linux}、\cite{arm_stack_exploitation}、\cite{arm_exploitation}、\cite{arm_ropmap}和\cite{arm_alphanumeric}。
+ARM漏洞利用是一个新的领域，目前参考文献较少，主要有\cite{arm_exploiting_linux, arm_stack_exploitation, arm_exploitation, arm_ropmap, arm_alphanumeric}。
 \section{简单的示例}
 \subsection{源代码}
 下面我们看一个实际的例子。这个程序来自于\cite{arm_exploiting_linux}，但因为编译源码使用的系统和编译器不同，后面的细节与原文有较大差异。
@@ -304,7 +304,7 @@ zergRush.c成功地利用了这一漏洞，并进一步：
 
 \subsection{函数功能概要}
 
-\begin{itemize}
+\begin{description}
 \item[die] 打印出错信息，退出程序
 \item[copy] 将一个文件拷贝为另一个文件
 \item[remount\_data] 重新mount一个分区
@@ -316,7 +316,7 @@ zergRush.c成功地利用了这一漏洞，并进一步：
 \item[find\_stack\_addr] 调用do\_fault，从其溢出产生的调试信息中定位栈地址
 \item[do\_root] 将shell文件的S位置上，并设置ro.kernel.qemu属性为1
 \item[main] 主函数，完成漏洞利用的所有步骤
-\end{itemize}
+\end{description}
 
 \subsection{main函数}
 \lstinputlisting[language=c,caption={zergRush的main函数}, firstnumber=387]{code/zergRush.main.c}
