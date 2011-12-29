@@ -1,80 +1,102 @@
 %!TEX encoding = UTF-8 Unicode
 \chapter{ARM漏洞利用}
 \section{学习的目的}
-目前绝大部分的智能移动终端使用ARM处理器。包括使用Android、Apple iOS、Symbian、Windows Mobile/Windows Phone、RIM OS等操作系统的手机和平板电脑。
+目前，绝大部分智能移动终端使用ARM处理器，包括基于Android、iOS、Symbian、Windows Mobile、Windows Phone等操作系统的手机和平板电脑。ARM还被大量的嵌入式设备使用。
 
-此外，ARM还被用于大量的嵌入式设备，在PC所不能及之处发挥着重要的作用。
+使用ARM处理器的PC也已经出现。几年前，Debian就发布了ARM移植版；2011年，Ubuntu开始支持ARM；2012年将正式发布的Windows 8也已经被微软移植到ARM上。预计在2012年，使用ARM处理器的笔记本电脑将开始流行。
 
-PC也可以使用ARM。几年前，Debian就发布了ARM版，2011年Ubuntu也开始支持ARM。Windows 8也将被微软移植到ARM上。
+ARM还开始向服务器市场发展。目前，Nvidia和巴塞罗那超级计算中心还推出了基于ARM和CUDA计算的超级计算机，Nvidia也将在2012年初向普通开发者推出基于ARM的CUDA开发工具。
 
-ARM还将向服务器市场发展，目前还出现了基于ARM和GPU的超级计算机。
-
-可以看出，ARM设备无论是数量还是覆盖面都不逊色于PC，但ARM的安全问题，尤其是其上软件漏洞的问题，直到最近几年才开始引起人们的注意。
+可以看出，ARM设备无论是数量上还是覆盖面都不逊色于PC。但ARM的安全问题，尤其是其上软件漏洞的问题，直到近几年才引起人们的注意。
 \section{环境和工具}
-\subsection{容易获得的ARM系统}
-如果需要自己编写的ARM代码实际运行起来，或者调试这些代码，就需要一个能运行ARM代码的系统。ARM的开发板并不贵，但还有更简单的方法获得这样一个系统。
+\subsection{ARM设备和系统}
+\subsubsection{开发板}
+获得一个ARM设备的常规方法是购买或者定制ARM开发板。如果不打算移植Android等系统，可以选择mini2440，否则可以选择mini6410等型号。
+
+需要自己为开发板交叉编译操作系统，并烧录进去。这个过程会比较好玩。但如果觉得乏味，或者时间不够，可以使用Ångström发行版\footnote{\href{http://www.angstrom-distribution.org/}{http://www.angstrom-distribution.org/}}。
+
+开发板的优点是，它是一个真实的ARM设备和运行环境；缺点是操作稍显繁琐。除此以外，还有其他方法可以获得ARM系统。
+
 \subsubsection{Android模拟器或手机}
-Android的底层是Linux内核，它运行于ARM之上。使用Android学习ARM漏洞利用的优点是：
+Android手机本身就是一个ARM设备，而Android底层的Linux内核就是运行于ARM上的系统。因此，Android手机基本是可以充当ARM开发和调试环境的。此外，Android SDK中的模拟器也是基于qemu模拟了ARM设备。从漏洞分析和漏洞利用的角度来看，使用Android手机或模拟器进行学习的优点包括：
+
 \begin{itemize}
-\item 如果就是要做Android安全，这自然是最佳的选择
-\item 有完善的开发工具和系统源码
-\item Android模拟器的硬件（边际）成本为0
+\item 如果要分析Android的漏洞，这自然是最佳的选择
+\item 有完善的开发工具链和系统源码
+\item 模拟器的硬件（边际）成本为0
 \end{itemize}
+
 但缺点也不少：
+
 \begin{itemize}
-\item 缺乏丰富的本地软件
+\item 在Android中的Linux上，没有太多的本地应用程序，例如gdb等调试工具（只有gdbserver）
 \item 不使用glibc库，而是自行开发的bionic，因此一些利用技巧在细节上会和Linux(on ARM)有差异
 \item 目标文件的编译，或者完全静态链接，或者用NDK开发，或者与Android源码一起编译，均显繁琐
 \end{itemize}
 
-无论如何，这种零成本的环境，还是强烈推荐常备着。
+无论如何，模拟器完全没有成本，建议在PC中常备以便使用。
+
 \subsubsection{Debian虚拟机}
-Debian早在2000年就开始了对ARM处理器的移植，目前几乎所有的软件都有了ARM版本，因此Linux用户常用的工具（例如objdump、gdb等）都可以直接在本地运行。
+早在2000年，Debian就开始了对ARM处理器的移植工程，目前其仓库中几乎所有的软件都有了ARM版本，包括objdump、gdb等常用开发和漏洞分析工具。
 
-另一方面，qemu模拟器已经可以完整地模拟ARM处理器及其硬件平台，可以用它在x86的PC上运行ARM版的Debian。
+另一方面，qemu模拟器已经可以完美地模拟ARM处理器及其硬件平台，可以用它在x86的PC上运行ARM版的Debian。
 
-可以直接从Debian的官网下载到其ARM安装包，但建议使用下列方案：
-\hrefurl{http://www.aurel32.net/info/debian\_arm\_qemu.php}
+可以直接从Debian的官网下载到其ARM安装包，然后参考aurel提供的安装指南\footnote{\href{http://www.aurel32.net/info/debian\_arm\_qemu.php}{http://www.aurel32.net/info/debian\_arm\_qemu.php}}。
 
-更省事的方案是直接下载已经安装好的qemu镜像，地址是：
-\hrefurl{http://people.debian.org/~aurel32/qemu/arm/}
-\subsubsection{Toshiba AC100上网本}
-Toshiba AC100是目前唯一一款拥有标准全键盘的ARM笔记本。它最初是为Android设计，但爱好者已经将多个Ubuntu移植到该机器上。最终，Ubuntu官方从11.10版本开始专门为这一机器提供预编译版本和软件源。
+更省事的方案是直接下载已经安装好的qemu镜像，也是由aurel提供。包括arm版\footnote{\href{http://people.debian.org/~aurel32/qemu/arm/}{http://people.debian.org/$\sim$aurel32/qemu/arm/}}
+和armel版\footnote{\href{http://people.debian.org/~aurel32/qemu/armel/}{http://people.debian.org/$\sim$aurel32/qemu/armel/}}
+，建议使用后者。
 
-该机器在国内的型号为AC100-01B，已经不在出新货，可以从爱好者手中购买到二手的，2011年年底的行情为750元左右。
+\subsubsection{Toshiba AC100}
+Toshiba AC100是目前唯一一款拥有标准全键盘的ARM笔记本。它最初是为Android设计，但hackers已经将多个Ubuntu版本移植到该机器上。最终，Canonical公司从Ubuntu 11.10开始专门为这一机器提供预编译版本和软件源，作为其向ARM平台扩张的第一步。
 
-这个笔记本是目前唯一一种可以最轻松获得的真实ARM机器。拥有前面Debian虚拟机的一切优点。
+该机器在国内的型号为AC100-01B，已经不再生产，但可以购买到二手的。
+
+这个笔记本是目前唯一一种可以最轻松获得的真实ARM机器，并拥有前面提到的Debian虚拟机的一切优点。
+
+此外，在前面所述的方案中，除了4.0以上Android，其Linux Kernel均未开启ASLR（地址空间布局随机化）特性，但在Ubuntu for AC100中，开启了ASLR。这固然为简单的ret2libc等攻击带来了困难，但另一方面，也成为几乎是唯一的分析ASLR下漏洞的环境。考虑到Android 4.0开始去掉prelink优化、全面开启ASLR特性\cite{aslr_android}，这种研究的价值是显然的。
+
 \subsubsection{Nokia N900手机}
-另一个hack利器是Nokia N900手机，这款老手机配置较高，采用已经被抛弃的Maemo系统，该系统是基于Linux的手机操作系统，开放性较高。N900的键盘操作性不强，系统也适合于有hack精神的人玩。
+另一个hack利器是Nokia N900手机，这款老手机采用已经被抛弃的Maemo系统，该系统是基于Linux的手机操作系统，开放性较高。N900的键盘操作性不强，系统也适合于有hack精神的人玩。
 \subsection{交叉编译工具}
 进行嵌入式开发时，编译工具运行于一个平台，但生成另一个平台的指令，这种编译过程称之为交叉编译，所使用的编译工具又称之为工具链。
 
-在x86上编译ARM代码最常用的工具链由CodeSourcery公司免费提供，有Windows版本和Linux版本，其下载地址是：\hrefurl{http://www.mentor.com/embedded-software/sourcery-tools/sourcery-codebench/editions/lite-edition}
+在x86上编译ARM代码最常用的工具链由CodeSourcery公司免费提供，有Windows版本和Linux版本\footnote{\href{http://www.mentor.com/embedded-software/sourcery-tools/sourcery-codebench/editions/lite-edition}{http://www.mentor.com/embedded-software/sourcery-tools/sourcery-codebench/editions/lite-edition}}。
 
-此外，在基于Debian的系统（例如Ubuntu）中，也可以通过apt-get install gcc-arm-linux-gnueabi直接获得一个交叉编译gcc。
+此外，在基于Debian的系统（例如Ubuntu）中，也可以通过\lstinline!apt-get install gcc-arm-linux-gnueabi!直接获得一个交叉编译gcc。
 
-Android的NDK中实际上也包含了完整的工具链，包括编译器、调试器、binutils等。它有Windows和Linux版本，下载地址是：
-\hrefurl{http://developer.android.com/sdk/ndk/index.html}
-然而NDK也有不足，即只能为Android编译代码，也只能使用其提供的有限的库接口。对后面一个问题，如果需要编译使用了Andrid系统中较底层API的ARM程序，建议使用agcc工具，具体可以看我写的文章：
-\hrefurl{http://blog.claudxiao.net/2011/10/android\_agcc/}
+Android的NDK中实际上也包含了完整的工具链，包括编译器、调试器、binutils等。它同样有Windows和Linux版本\footnote{\href{http://developer.android.com/sdk/ndk/index.html}{http://developer.android.com/sdk/ndk/index.html}}。
+
+然而NDK也有不足，即只能为Android编译代码，也只能使用其提供的有限的库接口。对后面一个问题，如果需要编译使用了Andrid系统中较底层API的ARM程序，建议使用agcc工具，具体可以看我写的文章\footnote{\href{http://blog.claudxiao.net/2011/10/android_agcc/}{http://blog.claudxiao.net/2011/10/android\_agcc/}}。
 \subsection{反汇编和反编译工具}
-工具链包含了很多的工具，如果静态反汇编，可以使用objdump；如果动态运行起来，在gdb中也可以使用disasm反汇编。
+工具链包含了很多的工具，如果静态反汇编，可以使用\lstinline!objdump!；如果动态运行起来，在\lstinline!gdb!中也可以使用\lstinline!disass!反汇编。
 
-最ARM反汇编支持最好的工具是IDA Pro，但它是商业软件，自由开源的反编译工具可以考虑radare：
-\hrefurl{http://www.radare.org/y/}
-或者smiasm：
-\hrefurl{http://code.google.com/p/smiasm/}
-但radare和smiasm对Thumb、Thumb-2指令集的支持都不强。
+对ARM反汇编支持最好的工具是IDA Pro，但它是商业软件。自由开源的反编译工具可以考虑radare\footnote{\href{http://www.radare.org/y/}{http://www.radare.org/y/}}或者smiasm\footnote{\href{http://code.google.com/p/smiasm/}{http://code.google.com/p/smiasm/}}，但radare和smiasm对Thumb、Thumb-2指令集的支持都不强。
+
+对这三个工具在ARM反汇编上的对比可以参考我的文章\footnote{\href{http://blog.claudxiao.net/2011/12/arm-disassemblers}{http://blog.claudxiao.net/2011/12/arm-disassemblers}}。
 
 事实上，ARM的指令编码并不复杂，自己写一个ARM反汇编器的工作量远小于想象。
 
-目前ARM的反编译工具只有随IDA Pro 6.2一起发布的Hex-Rays ARM Decompiler，是一款昂贵的收费软件。
+目前ARM的反编译工具只有Hex-Rays ARM Decompiler，是一款昂贵的收费软件。
 \subsection{远程调试}
-gdb远程调试
+可以使用\lstinline!gdb!远程调试ARM设备或虚拟机中的程序。假设设备的IP地址是192.168.0.2，要调试的程序名为demo，则在设备端运行：
+\begin{lstlisting}[language=bash, numbers=none]
+  $ gdbserver 192.168.0.2:23456 /path/to/demo
+\end{lstlisting}
 
-IDA远程调试请参考：
-\hrefurl{http://bbs.pediy.com/showthread.php?t=141739}
+接下来，在主机端使用ARM工具链中的gdb调试：
+\begin{lstlisting}[language=bash, numbers=none]
+  $ arm-eabi-gdb /path/to/demo
+\end{lstlisting}
 
+在进去gdb调试会话后，键入：
+\begin{lstlisting}[language=bash, numbers=none]
+  (gdb) target remote 192.168.0.2:23456
+\end{lstlisting}
+
+即可开始调试。
+
+也可以使用IDA Pro远程调试Android系统，Berry写过一篇文章介绍操作方法\footnote{\href{http://debugman.com/thread/6230/1/1}{http://debugman.com/thread/6230/1/1}}。
 \section{ARM体系结构}
 \subsection{ARM指令集}
 ARM同时是三个不同事物的名字：
@@ -205,7 +227,7 @@ ARM和Thumb指令集均有一个BL指令，它的操作是：将BL指令顺序�
 但也有好的消息。在Windows/x86平台引入DEP以后，因为代码部分的不可执行，出现的ret2libc和ROP等技巧，其思路也可以用于ARM。此外，ARM单条指令的描述能力是超过x86的，所以要寻找到合适的跳板指令序列并不是太难。
 
 ARM漏洞利用是一个新的领域，目前参考文献较少，主要有\cite{arm_exploiting_linux}、\cite{arm_stack_exploitation}、\cite{arm_exploitation}、\cite{arm_ropmap}和\cite{arm_alphanumeric}。
-\section{一个示例}
+\section{简单的示例}
 \subsection{源代码}
 下面我们看一个实际的例子。这个程序来自于\cite{arm_exploiting_linux}，但因为编译源码使用的系统和编译器不同，后面的细节与原文有较大差异。
 \lstinputlisting[language=c,caption={存在漏洞的示例代码}]{code/arm.test.c}
@@ -255,7 +277,7 @@ ARM漏洞利用是一个新的领域，目前参考文献较少，主要有\cite
 
 我们先看下donuts()函数的地址，为0x00008438，再考虑不破坏其他栈结构，因此构造了长为20字节的输入数据。其前12个字节随便填充，13-16字节为原来栈上的r11值，17-20字节为我们想要的返回地址，即donuts()函数的地址。最后，可以看到donuts()函数确实运行了起来，程序也正常退出了。
 
-\section{Ret2ZP攻击}
+\section{漏洞攻击方法}
 上述示例只是一个演示性的栈溢出。如果要发起真实攻击，跳到一个本地函数并不是我们需要的。
 
 在x86中，最初的做法是将shellcode作为数据传给程序，程序将其放在溢出后的栈上。当函数退出时，跳转到栈上执行shellcode。在引入DEP后，栈上数据不可执行，从而产生了包括ret2libc在内的ROP技术，即跳转到一些系统API或库函数，通过控制这些API的参数实现一定的能力。
@@ -264,10 +286,9 @@ ARM漏洞利用是一个新的领域，目前参考文献较少，主要有\cite
 
 以此思想为基础，Avraham提出了所谓的Ret2ZP(Return to Zero Protection)的攻击方法，主要在\cite{arm_stack_exploitation}和\cite{arm_exploitation}中进行了阐述。
 
-\subsection{ret2libc}
-\section{zergRush漏洞分析}
+\section{zergRush分析}
 \subsection{背景和原理}
-Revolutionary工具开发小组在2011年10月发布了一个在Android 2.2和2.3上获得root权限的方法\footnote{网址：\href{http://forum.xda-developers.com/showthread.php?t=1296916}{http://forum.xda-developers.com/showthread.php?t=1296916}}，并公布了漏洞利用代码zergRush.c\footnote{网址：\href{https://github.com/revolutionary/zergRush/blob/master/zergRush.c}{https://github.com/revolutionary/zergRush/blob/master/zergRush.c}}。tomken\_zhang已经在其博客上发表了两篇文章对其分析\footnote{地址分别是：\href{http://blog.csdn.net/tomken\_zhang/article/details/6866260}{http://blog.csdn.net/tomken\_zhang/article/details/6866260}和\href{http://blog.csdn.net/tomken\_zhang/article/details/6870104}{http://blog.csdn.net/tomken\_zhang/article/details/6870104}}。本文做进一步梳理和补充。
+Revolutionary工具开发小组在2011年10月发布了一个在Android 2.2和2.3上获得root权限的方法\footnote{\href{http://forum.xda-developers.com/showthread.php?t=1296916}{http://forum.xda-developers.com/showthread.php?t=1296916}}，并公布了漏洞利用代码zergRush.c\footnote{\href{https://github.com/revolutionary/zergRush/blob/master/zergRush.c}{https://github.com/revolutionary/zergRush/blob/master/zergRush.c}}。tomken\_zhang已经在其博客上发表了两篇文章对其分析\footnote{\href{http://blog.csdn.net/tomken\_zhang/article/details/6866260}{http://blog.csdn.net/tomken\_zhang/article/details/6866260}\newline\href{http://blog.csdn.net/tomken\_zhang/article/details/6870104}{http://blog.csdn.net/tomken\_zhang/article/details/6870104}}。本文做进一步梳理和补充。
 
 产生漏洞的主要原因是：具有root权限的vold进程使用了libsysutils.so库，该库的一个函数存在栈溢出，因此可以在root权限执行输入的shellcode。
 
