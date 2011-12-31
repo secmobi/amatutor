@@ -1,23 +1,93 @@
 %!TEX encoding = UTF-8 Unicode
 \chapter{静态分析}
+\section{apk文件格式}
+Android系统使用的安装包文件后缀名为.apk。实际上它是标准的ZIP格式文件，可以使用7-zip等压缩软件、zlib等函数库进行处理
+\footnote{ZIP格式的详细介绍，参考\url{http://en.wikipedia.org/wiki/ZIP\_(file\_format)}。}。
+
+一个.apk文件解压缩后，通常包括如下文件或文件夹：
+\begin{itemize}
+	\item[-] AndroidManifest.xml：项目配置文件，但不是明文的XML文件，直接打开无法阅读
+	\item[-] classes.dex\index{classes.dex}：所有的Java类文件被打包并转换为这个文件，它是Dalvik虚拟机上的可执行二进制文件，Android系统在运行时将其动态优化为.dey文件并投入一个Dalvik虚拟机实例中运行。
+	\item[-] resources.arsc：资源文件打包而成，字符串值（源码中res/value/Strings.xml）就在其中
+	\item[-] res/：资源文件夹，其中包括布局文件夹layout、图标图片文件夹drawable、原始文件文件夹raw（该目录下任何文件都会原封不动地存储到设备上）等
+	\item[-] META-INF/：数字签名文件夹
+	\item[-] lib/：包含NDK开发中使用的动态链接库文件（ARM架构下ELF格式.so文件），有的软件没有这个文件夹
+	\item[-] assets/：原始文件文件夹，其中的文件不会被压缩，也不能想res/目录下的资源文件一样通过R类引用，有的软件没有这个文件夹
+\end{itemize}
+其中，数字签名文件夹META-INF/包含下列文件：
+\begin{itemize}
+	\item[-] CERT.SF：生成每个文件相对的密钥
+	\item[-] MANIFEST.MF：数字签名信息
+	\item[-] xxx.SF：这是 JAR 文件的签名文件，xxx标识了签名者
+	\item[-] xxx.DSA：对输出文件的签名和公钥
+\end{itemize}
 
 \section{XML解码}
 \subsection{AXMLPrinter2}
+Android使用了大量XML文件用于项目配置、布局、文本资源等。XML具有较高的可读性，但格式解析的开销较大，适合开发人员编写，但不适合“寸土寸金”的手机解析。因此，Android在编译时将XML文件编码为另一种格式，并使用更快的算法解析格式。编码后的XML文件无法直接阅读。
 
+AXMLPrinter是开源项目android4me\footnote{\href{http://code.google.com/p/android4me/}{http://code.google.com/p/android4me/}}的一个产品，可以将上述编码过程逆向执行，即将编码后的XML文件还原为可读形式。它的使用非常简单：
+\begin{lstlisting}[language=bash, numbers=none]
+java -jar AXMLPrinter2.jar encoded.xml >decoded.xml
+\end{lstlisting}
 \section{DEX反汇编}
 \subsection{smali}
+apk文件中的“代码”实际上都存储在了classes.dex文件之中。这个文件类似于Java的类文件，是Dalvik虚拟机上的二进制可执行文件。smali和下一节介绍的dedexer是两款逆向.dex文件的工具，输出可读性较好的Dalvik指令文件。
+
+smali\footnote{\url{http://code.google.com/p/smali/}}实际上由两个工具smali.jar和baksmali.jar组成。其中，baksmali.jar用于反汇编：
+\begin{lstlisting}[language=bash, numbers=none]
+java -jar baksmali.jar classes.dex -o dir
+\end{lstlisting}
+上述命令会在dir目录下输出classes.dex的反汇编结果，其中文件扩展名为.smali，每个Java类一个文件，并以Java package名来组织路径。例如，com.example.Hello类将生成com/example/Hello.smali文件。
+
+smali.jar则用于将.smali文件再次编码为.dex文件：
+\begin{lstlisting}[language=bash, numbers=none]
+java -jar baksmali.jar dir -o classes_new.dex
+\end{lstlisting}
+
+因为精确地汇编与反汇编，smali成为Android病毒编写和分析中最常用的工具之一。
 \subsection{IDA}
 \subsection{dedexer}
-
+dedexer\footnote{\url{http://sourceforge.net/projects/dedexer/}}是另一个.dex文件反汇编工具，用法是：
+\begin{lstlisting}[language=bash, numbers=none]
+java -jar ddx.jar -d dir classes.dex
+\end{lstlisting}
+如果使用\lstinline!-o!参数，还将在dir目录下输出名为dex.log的.dex解析日志。
 \section{DEX反编译}
 \subsection{dex2jar}
+dex2jar\footnote{\url{http://code.google.com/p/dex2jar/}}将classes.dex逆向为Java的类文件（.class文件），并打包为.jar格式。jar格式本质上就是按package路径的类文件的ZIP压缩。
+
+dex2jar并不直接使用classes.dex，它自带了解包功能，命令为：
+\begin{lstlisting}[language=bash, numbers=none]
+dex2jar Example.apk
+\end{lstlisting}
+即直接作用于apk文件，在当前目录生成名为Example.apk.dex2jar.jar的文件。
+
+应当注意的是，dex2jar工具的逆向并不完全精确。目前已知在转换switch、try-exception等函数结构时，将会出错。
 \subsection{jd-gui}
+jd-gui\footnote{\url{http://java.decompiler.free.fr/?q=jdgui}}是一个图形界面的Jar文件反编译器。我们通常用jd-gui来反编译dex2jar产生的.jar文件，得到Java代码。
+
+dex2jar对部分函数结构的逆向错误将直接在jd-gui的反编译结果中显示出来。此外，部分特殊优化的类方法（函数），jd-gui的反编译将失败。
 \subsection{ded}
 \subsection{soot}
 \subsection{undx}
 
 \section{ARM分析}
 \subsection{IDA}
+除了classes.dex，在恶意代码中还可能存在另一种可执行文件：ARM架构下ELF格式可执行文件。事实上，恶意代码经常出于以下三个目的使用这类文件：
+\begin{itemize}
+	\item 将部分攻击行为用NDK开发，增加分析难度
+	\item 释放（Linux下可执行的）提权工具
+	\item 某些攻击行为必须用到底层的可执行文件，例如系统模块替换
+\end{itemize}
+因此，我们需要逆向分析这类文件。
+
+IDA Pro
+\index{IDA Pro}
+\footnote{\url{http://www.hex-rays.com/idapro/}}
+是Hex\-Rays公司开发的反汇编器。最新的6.1版需要购买，但5.0版可以免费使用。具体使用方法可以参考\cite{IDA_PRO_BOOK}。
+
+在IDA的菜单中，依次选择File$\rightarrow$New$\rightarrow$Unix$\rightarrow$ELF/COFF Dynamic Library$\rightarrow$OK，选择动态链接库文件即可开始分析。IDA会自动判断代码的体系结构，并选择相应的反汇编模块。
 \subsection{toolchain}
 
 \section{数字签名}
@@ -26,6 +96,20 @@
 
 \section{综合工具}
 \subsection{apktool}
+apktool\footnote{\url{http://code.google.com/p/android-apktool/}}实际上是一系列第三方工具的集合。它的功能包括：apk文件解包和打包、XML文件编码与反编码、resources.arsc的解包和打包、smali汇编与反汇编、samli调试等。
+
+其中，最常用的功能是解包和打包。解包命令为：
+\begin{lstlisting}[language=bash, numbers=none]
+apktool d Example.apk dir
+\end{lstlisting}
+会将Example.apk文件解包到dir目录，并自动完成其中XML文件、资源文件、.dex文件的后续处理。如果省略dir参数，则自动解包到.apk文件名的目录Example。
+
+打包命令为：
+\begin{lstlisting}[language=bash, numbers=none]
+apktool b dir New.apk
+\end{lstlisting}
+
+apktool提供了对smali文件的实时调试功能。[TODO：待补充]
 \subsection{androguard}
 \subsection{apkinspector}
 \subsection{dexid}
