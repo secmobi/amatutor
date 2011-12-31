@@ -5,7 +5,7 @@
 
 使用ARM处理器的PC也已经出现。几年前，Debian就发布了ARM移植版；2011年，Ubuntu开始支持ARM；2012年将正式发布的Windows 8也已经被微软移植到ARM上。预计在2012年，使用ARM处理器的笔记本电脑将开始流行。
 
-ARM还开始向服务器市场发展。目前，Nvidia和巴塞罗那超级计算中心还推出了基于ARM和CUDA计算的超级计算机，Nvidia也将在2012年初向普通开发者推出基于ARM的CUDA开发工具。
+ARM还开始向服务器市场发展。目前，NVIDIA公司和巴塞罗那超级计算中心还推出了基于ARM和CUDA计算的超级计算机，NVIDIA也将在2012年初向普通开发者推出基于ARM的CUDA开发工具。
 
 可以看出，ARM设备无论是数量上还是覆盖面都不逊色于PC。但ARM的安全问题，尤其是其上软件漏洞的问题，直到近几年才引起人们的注意。
 \section{环境和工具}
@@ -29,7 +29,7 @@ Android手机本身就是一个ARM设备，而Android底层的Linux内核就是�
 但缺点也不少：
 
 \begin{itemize}
-\item 在Android中的Linux上，没有太多的本地应用程序，例如gdb等调试工具（只有gdbserver）
+\item 在Android中的Linux上，没有太多的本地应用程序，例如\lstinline!gdb!等调试工具（只有\lstinline!gdbserver!）
 \item 不使用glibc库，而是自行开发的bionic，因此一些利用技巧在细节上会和Linux(on ARM)有差异
 \item 目标文件的编译，或者完全静态链接，或者用NDK开发，或者与Android源码一起编译，均显繁琐
 \end{itemize}
@@ -37,13 +37,13 @@ Android手机本身就是一个ARM设备，而Android底层的Linux内核就是�
 无论如何，模拟器完全没有成本，建议在PC中常备以便使用。
 
 \subsubsection{Debian虚拟机}
-早在2000年，Debian就开始了对ARM处理器的移植工程，目前其仓库中几乎所有的软件都有了ARM版本，包括objdump、gdb等常用开发和漏洞分析工具。
+早在2000年，Debian就开始了对ARM处理器的移植工程，目前其仓库中几乎所有的软件都有了ARM版本，包括\lstinline!objdump!、\lstinline!gdb!等常用开发和漏洞分析工具。
 
-另一方面，qemu模拟器已经可以完美地模拟ARM处理器及其硬件平台，可以用它在x86的PC上运行ARM版的Debian。
+另一方面，\lstinline!qemu!模拟器已经可以完美地模拟ARM处理器及其硬件平台，可以用它在x86的PC上运行ARM版的Debian。
 
 可以直接从Debian的官网下载到其ARM安装包，然后参考aurel提供的安装指南\footnote{\href{http://www.aurel32.net/info/debian\_arm\_qemu.php}{http://www.aurel32.net/info/debian\_arm\_qemu.php}}。
 
-更省事的方案是直接下载已经安装好的qemu镜像，也是由aurel提供。包括arm版\footnote{\href{http://people.debian.org/~aurel32/qemu/arm/}{http://people.debian.org/$\sim$aurel32/qemu/arm/}}
+更省事的方案是直接下载已经安装好的\lstinline!qemu!镜像，也是由aurel提供。包括arm版\footnote{\href{http://people.debian.org/~aurel32/qemu/arm/}{http://people.debian.org/$\sim$aurel32/qemu/arm/}}
 和armel版\footnote{\href{http://people.debian.org/~aurel32/qemu/armel/}{http://people.debian.org/$\sim$aurel32/qemu/armel/}}
 ，建议使用后者。
 
@@ -67,13 +67,27 @@ Toshiba AC100是目前唯一一款拥有标准全键盘的ARM笔记本。它最�
 
 Android的NDK中实际上也包含了完整的工具链，包括编译器、调试器、binutils等。它同样有Windows和Linux版本\footnote{\href{http://developer.android.com/sdk/ndk/index.html}{http://developer.android.com/sdk/ndk/index.html}}。
 
-然而NDK也有不足，即只能为Android编译代码，也只能使用其提供的有限的库接口。对后面一个问题，如果需要编译使用了Andrid系统中较底层API的ARM程序，建议使用agcc工具，具体可以看我写的文章\footnote{\href{http://blog.claudxiao.net/2011/10/android_agcc/}{http://blog.claudxiao.net/2011/10/android\_agcc/}}。
+然而NDK也有不足，即只能为Android编译代码，也只能使用其提供的有限的库接口。对后面一个问题，如果需要编译使用了Andrid系统中较底层API的ARM程序，建议使用\lstinline!agcc!工具，具体可以看我写的文章\footnote{\href{http://blog.claudxiao.net/2011/10/android_agcc/}{http://blog.claudxiao.net/2011/10/android\_agcc/}}。
 \subsection{反汇编和反编译工具}
 工具链包含了很多的工具，如果静态反汇编，可以使用\lstinline!objdump!；如果动态运行起来，在\lstinline!gdb!中也可以使用\lstinline!disass!反汇编。
 
 对ARM反汇编支持最好的工具是IDA Pro，但它是商业软件。自由开源的反编译工具可以考虑radare\footnote{\href{http://www.radare.org/y/}{http://www.radare.org/y/}}或者smiasm\footnote{\href{http://code.google.com/p/smiasm/}{http://code.google.com/p/smiasm/}}，但radare和smiasm对Thumb、Thumb-2指令集的支持都不强。
 
 对这三个工具在ARM反汇编上的对比可以参考我的文章\footnote{\href{http://blog.claudxiao.net/2011/12/arm-disassemblers}{http://blog.claudxiao.net/2011/12/arm-disassemblers}}。
+
+\begin{table}[htbp]
+  \caption{ARM反汇编器对比}
+  \centering
+  \begin{tabular}{lllll}
+    \toprule
+    方案 & 开源 & 支持Thumb & 递归反汇编 & 提供指令详情 \\
+    \midrule
+    smiasm & 是 & 否 & 是 & 是 \\
+    radare & 是 & 是 & 否 & 否 \\
+    IDA & 否 & 是 & 是 & 是\\
+    \bottomrule
+  \end{tabular}
+\end{table}
 
 事实上，ARM的指令编码并不复杂，自己写一个ARM反汇编器的工作量远小于想象。
 
@@ -84,19 +98,38 @@ Android的NDK中实际上也包含了完整的工具链，包括编译器、调�
   $ gdbserver 192.168.0.2:23456 /path/to/demo
 \end{lstlisting}
 
-接下来，在主机端使用ARM工具链中的gdb调试：
+接下来，在主机端使用ARM工具链中的\lstinline!gdb!调试：
 \begin{lstlisting}[language=bash, numbers=none]
   $ arm-eabi-gdb /path/to/demo
 \end{lstlisting}
 
-在进去gdb调试会话后，键入：
+在进去\lstinline!gdb!调试会话后，键入：
 \begin{lstlisting}[language=bash, numbers=none]
   (gdb) target remote 192.168.0.2:23456
 \end{lstlisting}
 
 即可开始调试。
 
-也可以使用IDA Pro远程调试Android系统，Berry写过一篇文章介绍操作方法\footnote{\href{http://debugman.com/thread/6230/1/1}{http://debugman.com/thread/6230/1/1}}。
+gdb也可以远程调试Android。在Android源码编译后，out/target/product/<product>/system/bin目录下会有\lstinline!gdbserver!，可以将其push到手机的/data/local目录下，给其可执行权限，然后类似于上面的方法使用。
+
+与上述gdb远程调试Linux系统不同的是，调试Android手机需要用\lstinline!adb!工具做端口转发，方法如下：
+
+\begin{lstlisting}[language=bash, numbers=none]
+  $ adb forward tcp:23456 tcp:23456
+\end{lstlisting}
+
+其中第一个参数是手机系统内的端口，第二个参数是本地端口。然后在本地的gdb中，\lstinline!target!的IP地址就是本地127.0.0.1了。
+
+类似于此，还可以使用IDA Pro远程调试Android系统中的ELF可执行文件或动态链接库文件（包括NDK开发了用于APK文件的本地动态库）。步骤如下（该方法来自于Berry的文章\footnote{\href{http://debugman.com/thread/6230/1/1}{http://debugman.com/thread/6230/1/1}}）：
+
+\begin{enumerate}
+  \item 将IDA Pro 6.1的bin目录下的\lstinline!android_server!文件\lstinline!push!到手机的/data/local目录下，并通过adb shell给其可执行权限；
+  \item 在\lstinline!adb shell!里，启动这个\lstinline!android_server!程序，查看其输出，默认情况下打开23946号端口；
+  \item 在本地的shell中使用\lstinline!adb!工具转发该端口：\lstinline!adb forward tcp:23946 tcp:23946!；
+  \item 在IDA Pro的Debugger菜单中，选择Android调试，在其选项中，hostname填写127.0.0.1，port填写23946。如果是调试一个可执行文件，还需要在application中填上可执行文件在Android系统中的路径；input file中填写与application一致的文件及路径，并加上运行参数；在directory中填上该文件所在目录。
+  \item 在IDA Pro的Debugger菜单中，如果是调试已经存在的进程，选择attach，在弹出来的进程列表中选择要调试的进程即可；如果是调试一个可执行文件，选择start process即可。
+\end{enumerate}
+
 \section{ARM体系结构}
 \subsection{ARM指令集}
 ARM同时是三个不同事物的名字：
@@ -110,9 +143,9 @@ ARM同时是三个不同事物的名字：
 ARM是32位RISC结构，在ARMv5以后，基本采用Harvard结构，与传统的冯诺依曼结构不同的是，数据和代码被最大程度隔离了。既便于数据段保护的x86也有本质区别，ARM的代码和数据采用不同的总线传输（并因此获得并行而提速）。其数据段自然不能被执行。
 
 \subsubsection{寄存器}
-对程序员可见的寄存器主要是r0到r15共16个，不同的寄存器有不同的用途，将在下一节说明。
+对程序员可见的寄存器主要是\lstinline!r0!到\lstinline!r15!共16个，不同的寄存器有不同的用途，将在下一节说明。
 
-此外，有程序状态寄存器PSR，其中包括算数逻辑运算标志、执行状态位、当前中断号等。
+此外，有程序状态寄存器\lstinline!PSR!，其中包括算数逻辑运算标志、执行状态位、当前中断号等。
 
 \subsubsection{数据操作指令}
 基本形式是：
@@ -121,24 +154,24 @@ ARM是32位RISC结构，在ARMv5以后，基本采用Harvard结构，与传统�
 \end{lstlisting}
 其中：
 \begin{itemize}
-\item[opcode] 比如MOV、ADD，与x86类似，具体可以查ARM手册
-\item[cond] 可选的条件码。条件执行是ARM的特色之一，几乎所有的ARM指令都可以加上条件码，实现条件执行。例如，EQ、LE等
-\item[S] 可选的S位，如果该条指令会更改PSR，则应置上S位
+\item[opcode] 比如\lstinline!MOV!、\lstinline!ADD!，与x86类似，具体可以查ARM手册
+\item[cond] 可选的条件码。条件执行是ARM的特色之一，几乎所有的ARM指令都可以加上条件码，实现条件执行。例如，\lstinline!EQ!、\lstinline!LE!等
+\item[S] 可选的\lstinline!S!位，如果该条指令会更改\lstinline!PSR!，则应置上\lstinline!S!位
 \item[operand] 操作数可以是寄存器，也可以是一个右值（后面会说明），每条指令有多少操作数，分别是什么含义，应查手册
 \end{itemize}
 
-ARM中的右值操作数可以是一个寄存器、一个立即数，或者一个寄存器的移位。例如，右值R1, LSL \#2由R2的值逻辑左移2位得到，右值R1, ASR R3由R1的值算术右移R3位得到。
+ARM中的右值操作数可以是一个寄存器、一个立即数，或者一个寄存器的移位。例如，右值\lstinline!R1, LSL #2!由\lstinline!R2!的值逻辑左移2位得到，右值\lstinline!R1, ASR R3!由\lstinline!R1!的值算术右移\lstinline!R3!位得到。
 
 \subsubsection{分支跳转指令}
 \begin{itemize}
-\item[B] 直接跳转到一个地址，唯一的参数是12位立即数，与x86中的jmp功能一样
-\item[BL] 将下一条指令地址（即返回地址）赋给LR寄存器，然后跳转到参数指定的地址，参数是一个12位立即数。BL与x86中的call功能一样
+\item[B] 直接跳转到一个地址，唯一的参数是12位立即数，与x86中的\lstinline!jmp!功能一样
+\item[BL] 将下一条指令地址（即返回地址）赋给\lstinline!LR!寄存器，然后跳转到参数指定的地址，参数是一个12位立即数。\lstinline!BL!与x86中的\lstinline!call!功能一样
 \item[BX] 参数是一个寄存器，跳转到该寄存器指向的地址
 \end{itemize}
 所有这些分支跳转指令都可以使用条件码，成为相应的条件跳转指令。
 
 \subsubsection{内存访问指令1}
-ARM使用简单的访存模型，所有内存读写都通过LDR和STR两条指令完成，而且只能在寄存器与内存之间读写，不能直接从内存读写到内存。LDR和STR都有一个可选的后缀B，不选时按字（4字节）读写，选择B时按字节读写。其第一个参数是寄存器，第二个参数是内存地址。
+ARM使用简单的访存模型，所有内存读写都通过\lstinline!LDR!和\lstinline!STR!两条指令完成，而且只能在寄存器与内存之间读写，不能直接从内存读写到内存。\lstinline!LDR!和\lstinline!STR!都有一个可选的后缀\lstinline!B!，不选时按字（4字节）读写，选择B时按字节读写。其第一个参数是寄存器，第二个参数是内存地址。
 
 \subsubsection{寻址方式}
 第一类寻址方式：
