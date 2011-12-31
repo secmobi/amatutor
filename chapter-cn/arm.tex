@@ -13,7 +13,7 @@ ARM还开始向服务器市场发展。目前，NVIDIA公司和巴塞罗那超�
 \subsubsection{开发板}
 获得一个ARM设备的常规方法是购买或者定制ARM开发板。如果不打算移植Android等系统，可以选择mini2440，否则可以选择mini6410等型号。
 
-需要自己为开发板交叉编译操作系统，并烧录进去。这个过程会比较好玩。但如果觉得乏味，或者时间不够，可以使用Ångström发行版\footnote{\href{http://www.angstrom-distribution.org/}{http://www.angstrom-distribution.org/}}。
+需要自己为开发板交叉编译操作系统，并烧录进去。这个过程会比较好玩。但如果觉得乏味，或者时间不够，可以使用Ångström发行版\footnote{\url{http://www.angstrom-distribution.org/}}。
 
 开发板的优点是，它是一个真实的ARM设备和运行环境；缺点是操作稍显繁琐。除此以外，还有其他方法可以获得ARM系统。
 
@@ -41,10 +41,10 @@ Android手机本身就是一个ARM设备，而Android底层的Linux内核就是�
 
 另一方面，\lstinline!qemu!模拟器已经可以完美地模拟ARM处理器及其硬件平台，可以用它在x86的PC上运行ARM版的Debian。
 
-可以直接从Debian的官网下载到其ARM安装包，然后参考aurel提供的安装指南\footnote{\href{http://www.aurel32.net/info/debian\_arm\_qemu.php}{http://www.aurel32.net/info/debian\_arm\_qemu.php}}。
+可以直接从Debian的官网下载到其ARM安装包，然后参考aurel提供的安装指南\footnote{\url{http://www.aurel32.net/info/debian\_arm\_qemu.php}}。
 
-更省事的方案是直接下载已经安装好的\lstinline!qemu!镜像，也是由aurel提供。包括arm版\footnote{\href{http://people.debian.org/~aurel32/qemu/arm/}{http://people.debian.org/$\sim$aurel32/qemu/arm/}}
-和armel版\footnote{\href{http://people.debian.org/~aurel32/qemu/armel/}{http://people.debian.org/$\sim$aurel32/qemu/armel/}}
+更省事的方案是直接下载已经安装好的\lstinline!qemu!镜像，也是由aurel提供。包括arm版\footnote{\url{http://people.debian.org/~aurel32/qemu/arm/}}
+和armel版\footnote{\url{http://people.debian.org/~aurel32/qemu/armel/}}
 ，建议使用后者。
 
 \subsubsection{Toshiba AC100}
@@ -61,19 +61,19 @@ Toshiba AC100是目前唯一一款拥有标准全键盘的ARM笔记本。它最�
 \subsection{交叉编译工具}
 进行嵌入式开发时，编译工具运行于一个平台，但生成另一个平台的指令，这种编译过程称之为交叉编译，所使用的编译工具又称之为工具链。
 
-在x86上编译ARM代码最常用的工具链由CodeSourcery公司免费提供，有Windows版本和Linux版本\footnote{\href{http://www.mentor.com/embedded-software/sourcery-tools/sourcery-codebench/editions/lite-edition}{http://www.mentor.com/embedded-software/sourcery-tools/sourcery-codebench/editions/lite-edition}}。
+在x86上编译ARM代码最常用的工具链由CodeSourcery公司免费提供，有Windows版本和Linux版本\footnote{\url{http://www.mentor.com/embedded-software/sourcery-tools/sourcery-codebench/editions/lite-edition}}。
 
 此外，在基于Debian的系统（例如Ubuntu）中，也可以通过\lstinline!apt-get install gcc-arm-linux-gnueabi!直接获得一个交叉编译gcc。
 
-Android的NDK中实际上也包含了完整的工具链，包括编译器、调试器、binutils等。它同样有Windows和Linux版本\footnote{\href{http://developer.android.com/sdk/ndk/index.html}{http://developer.android.com/sdk/ndk/index.html}}。
+Android的NDK中实际上也包含了完整的工具链，包括编译器、调试器、binutils等。它同样有Windows和Linux版本\footnote{\url{http://developer.android.com/sdk/ndk/index.html}}。
 
-然而NDK也有不足，即只能为Android编译代码，也只能使用其提供的有限的库接口。对后面一个问题，如果需要编译使用了Andrid系统中较底层API的ARM程序，建议使用\lstinline!agcc!工具，具体可以看我写的文章\footnote{\href{http://blog.claudxiao.net/2011/10/android_agcc/}{http://blog.claudxiao.net/2011/10/android\_agcc/}}。
+然而NDK也有不足，即只能为Android编译代码，也只能使用其提供的有限的库接口。对后面一个问题，如果需要编译使用了Andrid系统中较底层API的ARM程序，建议使用\lstinline!agcc!工具，具体可以看我写的文章\footnote{\url{http://blog.claudxiao.net/2011/10/android\_agcc/}}。
 \subsection{反汇编和反编译工具}
 工具链包含了很多的工具，如果静态反汇编，可以使用\lstinline!objdump!；如果动态运行起来，在\lstinline!gdb!中也可以使用\lstinline!disass!反汇编。
 
-对ARM反汇编支持最好的工具是IDA Pro，但它是商业软件。自由开源的反编译工具可以考虑radare\footnote{\href{http://www.radare.org/y/}{http://www.radare.org/y/}}或者smiasm\footnote{\href{http://code.google.com/p/smiasm/}{http://code.google.com/p/smiasm/}}，但radare和smiasm对Thumb、Thumb-2指令集的支持都不强。
+对ARM反汇编支持最好的工具是IDA Pro，但它是商业软件。自由开源的反编译工具可以考虑radare\footnote{\url{http://www.radare.org/y/}}或者smiasm\footnote{\url{http://code.google.com/p/smiasm/}}，但radare和smiasm对Thumb、Thumb-2指令集的支持都不强。
 
-对这三个工具在ARM反汇编上的对比可以参考我的文章\footnote{\href{http://blog.claudxiao.net/2011/12/arm-disassemblers}{http://blog.claudxiao.net/2011/12/arm-disassemblers}}。
+对这三个工具在ARM反汇编上的对比可以参考我的文章\footnote{\url{http://blog.claudxiao.net/2011/12/arm-disassemblers}}。
 
 \begin{table}[htbp]
   \caption{ARM反汇编器对比}
@@ -120,7 +120,7 @@ gdb也可以远程调试Android。在Android源码编译后，out/target/product
 
 其中第一个参数是手机系统内的端口，第二个参数是本地端口。然后在本地的gdb中，\lstinline!target!的IP地址就是本地127.0.0.1了。
 
-类似于此，还可以使用IDA Pro远程调试Android系统中的ELF可执行文件或动态链接库文件（包括NDK开发了用于APK文件的本地动态库）。步骤如下（该方法来自于Berry的文章\footnote{\href{http://debugman.com/thread/6230/1/1}{http://debugman.com/thread/6230/1/1}}）：
+类似于此，还可以使用IDA Pro远程调试Android系统中的ELF可执行文件或动态链接库文件（包括NDK开发了用于APK文件的本地动态库）。步骤如下（该方法来自于Berry的文章\footnote{\url{http://debugman.com/thread/6230/1/1}}）：
 
 \begin{enumerate}
   \item 将IDA Pro 6.1的bin目录下的\lstinline!android_server!文件\lstinline!push!到手机的/data/local目录下，并通过adb shell给其可执行权限；
@@ -321,7 +321,7 @@ ARM漏洞利用是一个新的领域，目前参考文献较少，主要有\cite
 
 \section{zergRush分析}
 \subsection{背景和原理}
-Revolutionary工具开发小组在2011年10月发布了一个在Android 2.2和2.3上获得root权限的方法\footnote{\href{http://forum.xda-developers.com/showthread.php?t=1296916}{http://forum.xda-developers.com/showthread.php?t=1296916}}，并公布了漏洞利用代码zergRush.c\footnote{\href{https://github.com/revolutionary/zergRush/blob/master/zergRush.c}{https://github.com/revolutionary/zergRush/blob/master/zergRush.c}}。tomken\_zhang已经在其博客上发表了两篇文章对其分析\footnote{\href{http://blog.csdn.net/tomken\_zhang/article/details/6866260}{http://blog.csdn.net/tomken\_zhang/article/details/6866260}\newline\href{http://blog.csdn.net/tomken\_zhang/article/details/6870104}{http://blog.csdn.net/tomken\_zhang/article/details/6870104}}。本文做进一步梳理和补充。
+Revolutionary工具开发小组在2011年10月发布了一个在Android 2.2和2.3上获得root权限的方法\footnote{\url{http://forum.xda-developers.com/showthread.php?t=1296916}}，并公布了漏洞利用代码zergRush.c\footnote{\url{https://github.com/revolutionary/zergRush/blob/master/zergRush.c}}。tomken\_zhang已经在其博客上发表了两篇文章对其分析\footnote{\url{http://blog.csdn.net/tomken\_zhang/article/details/6866260}\newline\url{http://blog.csdn.net/tomken\_zhang/article/details/6870104}}。本文做进一步梳理和补充。
 
 产生漏洞的主要原因是：具有root权限的vold进程使用了libsysutils.so库，该库的一个函数存在栈溢出，因此可以在root权限执行输入的shellcode。
 
@@ -333,7 +333,7 @@ zergRush.c成功地利用了这一漏洞，并进一步：
 \item 使Android中后续启动的adb进程以root权限运行。
 \end{enumerate}
 
-其中第二步的方法是：adb进程最初以root运行，之后调用setuid()降低权限\footnote{\href{http://blog.claudxiao.net/2011/04/android-adb-setuid/}{http://blog.claudxiao.net/2011/04/android-adb-setuid/}}降权之前，会判断系统属性ro.kernel.qemu，如果该属性位1，则不降权。
+其中第二步的方法是：adb进程最初以root运行，之后调用setuid()降低权限\footnote{\url{http://blog.claudxiao.net/2011/04/android-adb-setuid/}}降权之前，会判断系统属性ro.kernel.qemu，如果该属性位1，则不降权。
 
 \subsection{函数功能概要}
 
