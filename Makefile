@@ -1,5 +1,5 @@
 texfile = amatutor-cn
-reffile = ama
+reffile = amatutor-cn
 subdir = chapter-cn
 
 TEX = xelatex
