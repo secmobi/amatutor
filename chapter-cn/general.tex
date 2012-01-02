@@ -1,0 +1,26 @@
+%!TEX encoding = UTF-8 Unicode
+\chapter{概述}
+\section{分析的基本思路}
+\section{apk文件格式}
+Android系统使用的安装包文件后缀名为.apk。实际上它是标准的ZIP格式文件，可以使用7-zip等压缩软件、zlib等函数库进行处理
+\footnote{ZIP格式的详细介绍，参考\url{http://en.wikipedia.org/wiki/ZIP\_(file\_format)}。}。
+
+一个.apk文件解压缩后，通常包括如下文件或文件夹：
+\begin{itemize}
+	\item[-] AndroidManifest.xml：项目配置文件，但不是明文的XML文件，直接打开无法阅读
+	\item[-] classes.dex\index{classes.dex}：所有的Java类文件被打包并转换为这个文件，它是Dalvik虚拟机上的可执行二进制文件，Android系统在运行时将其动态优化为.dey文件并投入一个Dalvik虚拟机实例中运行。
+	\item[-] resources.arsc：资源文件打包而成，字符串值（源码中res/value/Strings.xml）就在其中
+	\item[-] res/：资源文件夹，其中包括布局文件夹layout、图标图片文件夹drawable、原始文件文件夹raw（该目录下任何文件都会原封不动地存储到设备上）等
+	\item[-] META-INF/：数字签名文件夹
+	\item[-] lib/：包含NDK开发中使用的动态链接库文件（ARM架构下ELF格式.so文件），有的软件没有这个文件夹
+	\item[-] assets/：原始文件文件夹，其中的文件不会被压缩，也不能想res/目录下的资源文件一样通过R类引用，有的软件没有这个文件夹
+\end{itemize}
+其中，数字签名文件夹META-INF/包含下列文件：
+\begin{itemize}
+	\item[-] CERT.SF：生成每个文件相对的密钥
+	\item[-] MANIFEST.MF：数字签名信息
+	\item[-] xxx.SF：这是 JAR 文件的签名文件，xxx标识了签名者
+	\item[-] xxx.DSA：对输出文件的签名和公钥
+\end{itemize}
+
+\section{apk编译过程}
