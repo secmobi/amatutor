@@ -4,6 +4,7 @@ subdir = chapter-cn
 
 TEX = xelatex
 BIB = bibtex
+IDX = makeindex
 
 all: $(texfile).pdf
 
@@ -12,11 +13,11 @@ pdf: all
 $(texfile).pdf: $(texfile).tex $(reffile).bib $(subdir)/*.tex
 	$(TEX) $(texfile).tex
 	$(BIB) $(texfile).aux
-	$(TEX) $(texfile).tex
+	$(IDX) $(texfile).idx
 	$(TEX) $(texfile).tex
 
 clean:
-	@find . | egrep "\.(aux|idx|log|out|gz|toc|bak|bbl|blg)" | xargs rm -f
+	@find . | egrep "\.(aux|idx|log|out|gz|toc|bak|bbl|blg|ilg|ind)" | xargs rm -f
 	@find . | egrep "\.pdf" | xargs rm -f
 	@find . | egrep "~" | xargs rm -f
 	@find $(subdir) | egrep "\.aux" | xargs rm -f
