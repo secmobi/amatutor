@@ -1,5 +1,8 @@
 %!TEX encoding = UTF-8 Unicode
 \chapter{概述}
+要分析Android恶意代码，首先要对Android系统的一些基本知识有所了解，例如APK文件格式、应用软件开发方式和编译过程，还需要对系统内部结构有所认识，包括DEX文件结构、Dalvik指令集、Android系统结构等。可惜的是，这些知识散落在Android文档和书籍之中，并没有被专门地整理和介绍。本章对这些知识单独做介绍，但DEX文件结构和Dalvik指令集等过于重要，将单独作为后面的一章。
+
+除了本章的内容，我们建议读者多阅读Android的开发文档和源码（尤其是源码中的文档）。此外，还有几本关于Android系统原理分析的书\cite{android_jishuneimu, android_shenrulijie, android_neihepouxi}，也值得一看。
 \section{系统结构}
 Android系统的组成结构如图\ref{Fig:system-architecture}所示，主要分为四层，自底向上分别是Linux内核与驱动、系统库和虚拟机、应用程序框架、应用程序。
 \begin{figure}[htbp]
@@ -109,4 +112,3 @@ Android系统使用的安装包文件后缀名为.apk。实际上它是标准的
 	\item[-] xxx.DSA：对输出文件的签名和公钥
 \end{itemize}
 
-\section{恶意代码分析的基本思路}
