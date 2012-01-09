@@ -15,6 +15,7 @@ $(texfile).pdf: $(texfile).tex $(reffile).bib $(subdir)/*.tex
 	$(BIB) $(texfile).aux
 	$(IDX) $(texfile).idx
 	$(TEX) $(texfile).tex
+	$(TEX) $(texfile).tex
 
 clean:
 	@find . | egrep "\.(aux|idx|log|out|gz|toc|bak|bbl|blg|ilg|ind)" | xargs rm -f
