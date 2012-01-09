@@ -46,7 +46,7 @@ AXML格式解析的C语言实现可以使用我写的AndTools\footnote{\url{http
 \subsection{smali}
 apk文件中的“代码”实际上都存储在了classes.dex文件之中。这个文件类似于Java的类文件，是Dalvik虚拟机上的二进制可执行文件。smali和下一节介绍的dedexer是两款逆向.dex文件的工具，输出可读性较好的Dalvik指令文件。
 
-smali\footnote{\url{http://code.google.com/p/smali/}}实际上由两个工具smali.jar和baksmali.jar组成。其中，baksmali.jar用于反汇编：
+smali\footnote{\url{http://code.google.com/p/smali/}}实际上由两个工具smali.jar和baksmali.jar组成。它使用基于jasmin\footnote{\url{http://jasmin.sourceforge.net}}\index{jasmin}的汇编语法。其中，baksmali.jar用于反汇编：
 \begin{lstlisting}[language=bash, numbers=none]
 java -jar baksmali.jar classes.dex -o dir
 \end{lstlisting}
@@ -69,6 +69,8 @@ java -jar ddx.jar -d dir classes.dex
 \end{lstlisting}
 如果使用\lstinline!-o!参数，还将在dir目录下输出名为dex.log的.dex解析日志。
 \section{Dalvik反编译}
+将Java源码编译为Dalvik指令分为两步：先使用\lstinline!javac!将源码编译为.class文件，再使用\lstinline!dx!转换为DEX文件。反之，将DEX文件反编译为Java源码通常也是两步：将DEX再次转换为.class或.jar文件，主要是指令和文件格式的转换；然而将.class或.jar文件用Java反编译器反编译成Java源码。
+
 \subsection{dex2jar}
 dex2jar\footnote{\url{http://code.google.com/p/dex2jar/}}将classes.dex逆向为Java的类文件（.class文件），并打包为.jar格式。jar格式本质上就是按package路径的类文件的ZIP压缩。
 
@@ -83,9 +85,16 @@ dex2jar Example.apk
 jd-gui\footnote{\url{http://java.decompiler.free.fr/?q=jdgui}}是一个图形界面的Jar文件反编译器。我们通常用jd-gui来反编译dex2jar产生的.jar文件，得到Java代码。
 
 dex2jar对部分函数结构的逆向错误将直接在jd-gui的反编译结果中显示出来。此外，部分特殊优化的类方法（函数），jd-gui的反编译将失败。
+
 \subsection{ded}
-\subsection{soot}
-\subsection{undx}
+ded\footnote{\url{http://siis.cse.psu.edu/ded/}}\index{ded}是宾西法尼亚大学研究人员开发的软件，可以将DEX文件转为Java的.class文件。目前只能在Linux和Mac OS X下使用。
+
+ded使用soot\footnote{\url{http://www.sable.mcgill.ca/soot/}}\index{soot}对.class文件做优化，优化后反编译得到的Java源文件效果较好，在一些细节上优于dex2jar和jd-gui的组合，尤其是对一些循环结构和异常处理代码的反编译上。但soot的运行速度极慢、占用内存较多。
+
+\subsection{其他}
+还有undx\footnote{\url{http://sourceforge.net/projects/undx/}}\index{undx}和dex-decompiler\footnote{\url{http://code.google.com/p/dex-decompiler/}}\index{dex-decompiler}这两个反编译器，但效果如何，还没有试用过。
+
+除了jd-gui和soot，常用的Java反编译工具还有jad\footnote{\url{http://www.varaneckas.com/jad}}\index{jad}和dava\footnote{\url{http://www.sable.mcgill.ca/dava/}}\index{dava}。
 
 \section{ARM分析}
 \subsection{IDA}
@@ -104,7 +113,17 @@ IDA Pro\footnote{\url{http://www.hex-rays.com/idapro/}}是Hex\-Rays公司开发�
 
 \section{数字签名}
 \subsection{signapk}
+signapk是Android源码中为APK格式文件签名的程序，其源码位于build/tools/signapk/目录，编译后的结果位于的out/host/linux-x86/framework/目录。用法是：
+\begin{lstlisting}[language=bash, numbers=none]
+java -jar signapk.jar publickey.x509[.pem] privatekey.pk8 input.apk output.apk
+\end{lstlisting}
+APK文件经过signapk签名，再使用\lstinline!zipalign!对齐，就可以安装到手机中了。
+
 \subsection{openssl}
+一般情况下，APK文件的签名位于其压缩包的META-INF/CERT.RSA文件中。可以使用openssl\index{openssl}查看其签名信息：
+\begin{lstlisting}[language=bash, numbers=none]
+ $ openssl pkcs7 -in CERT.RSA -inform DER -print_certs
+\end{lstlisting}
 
 \section{综合工具}
 \subsection{apktool}
