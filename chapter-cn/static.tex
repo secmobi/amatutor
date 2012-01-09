@@ -126,6 +126,13 @@ APK文件经过signapk签名，再使用\lstinline!zipalign!对齐，就可以�
  $ openssl pkcs7 -in CERT.RSA -inform DER -print_certs
 \end{lstlisting}
 
+\subsection{keytool}
+\lstinline!keytool!是一个用于生成数字签名和解析数字签名的工具。例如，用它查看APK文件数字签名信息的方法是：
+\begin{lstlisting}[language=bash, numbers=none]
+ $ keytool -printcert -file META-INF/CERT.RSA
+\end{lstlisting}
+它得到的信息包括序列号和有效期，比使用\lstinline!openssl!得到的要详细。
+
 \section{综合工具}
 \subsection{apktool}
 apktool\footnote{\url{http://code.google.com/p/android-apktool/}}实际上是一系列第三方工具的集合。它的功能包括：apk文件解包和打包、XML文件编码与反编码、resources.arsc的解包和打包、smali汇编与反汇编、samli调试等。
