@@ -1,5 +1,6 @@
 %!TEX encoding = UTF-8 Unicode
 \chapter{ARM漏洞利用}
+\label{Chap:arm}
 \section{学习的目的}
 目前，绝大部分智能移动终端使用ARM处理器，包括基于Android、iOS、Symbian、Windows Mobile、Windows Phone等操作系统的手机和平板电脑。ARM还被大量的嵌入式设备使用。
 
@@ -274,7 +275,7 @@ ARM漏洞利用是一个新的领域，目前参考文献较少，主要有\cite
 
 在编译完成后，就可以使用gdb来反汇编vuln()函数了。下面是在ARMEL的Debian系统下，用gcc4.4编译的结果：
 
-\lstinputlisting[caption={vuln函数的反汇编结果}]{code/arm.test.dis1.asm}
+\lstinputlisting[caption={vuln函数的反汇编结果}, language={}]{code/arm.test.dis1.asm}
 
 逐一解析这些代码，以熟悉ARM指令。
 
@@ -299,14 +300,14 @@ ARM漏洞利用是一个新的领域，目前参考文献较少，主要有\cite
 \subsection{栈结构}
 我们再来看看当正常运行到上面第12行，即执行完strcpy后，栈的情况。我们用1234作为参数。
 
-\lstinputlisting[caption={正常拷贝后的栈结构}]{code/arm.test.dis2.asm}
+\lstinputlisting[caption={正常拷贝后的栈结构}, language={}]{code/arm.test.dis2.asm}
 
 可以看到，参数1234已经出现在栈上（0xbedb9794处），而返回地址位于0xbedb97a4处，为0x0084ac。如果输入数据越界，则其17到20字节将正好覆盖这一返回地址。这个结论与我们前面对代码的分析是一致的。
 
 \subsection{构造溢出}
 从上面的栈结构，我们可以构造溢出数据了。如下所示：
 
-\lstinputlisting[caption={构造溢出数据}]{code/arm.test.dis3.asm}
+\lstinputlisting[caption={构造溢出数据}, language={}]{code/arm.test.dis3.asm}
 
 我们先看下donuts()函数的地址，为0x00008438，再考虑不破坏其他栈结构，因此构造了长为20字节的输入数据。其前12个字节随便填充，13-16字节为原来栈上的r11值，17-20字节为我们想要的返回地址，即donuts()函数的地址。最后，可以看到donuts()函数确实运行了起来，程序也正常退出了。
 
