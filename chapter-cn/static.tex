@@ -178,20 +178,28 @@ Certificate fingerprints:
 
 \section{综合工具}
 \subsection{apktool}
-apktool\footnote{\url{http://code.google.com/p/android-apktool/}}实际上是一系列第三方工具的集合。它的功能包括：apk文件解包和打包、XML文件编码与反编码、resources.arsc的解包和打包、smali汇编与反汇编、samli调试等。
+\lstinline!apktool!\footnote{\url{http://code.google.com/p/android-apktool/}}\index{apktool}是一系列工具的集合。它的功能包括：APK文件解包和打包、AXML编码与解码、资源文件的解包和打包、smali汇编与反汇编、samli调试等。
 
 其中，最常用的功能是解包和打包。解包命令为：
 \begin{lstlisting}[language=bash, numbers=none]
-apktool d Example.apk dir
+ $ ./apktool d Example.apk dir
 \end{lstlisting}
-会将Example.apk文件解包到dir目录，并自动完成其中XML文件、资源文件、.dex文件的后续处理。如果省略dir参数，则自动解包到.apk文件名的目录Example。
+会将Example.apk文件解包到dir目录，并自动完成其中AXML文件、资源文件、DEX文件的处理。如果省略dir参数，则解包到APK文件同名目录Example。
 
 打包命令为：
 \begin{lstlisting}[language=bash, numbers=none]
-apktool b dir New.apk
+ $ apktool b dir New.apk
 \end{lstlisting}
 
-apktool提供了对smali文件的实时调试功能。[TODO：待补充]
+而在解包和打包之间，允许对配置文件AndroidManifest.xml、资源文件、smali代码的增加、删除、修改等，而重新打包后得到的APK文件在签名后可以安装到手机中运行。因此，\lstinline!apktool!常被攻击者用于恶意代码植入（参考\ref{Sec:repackage}节）或软件破解。但也可以用于恶意代码分析——增加或修改代码后进行动态分析。
+
+\lstinline!apktool!还提供对smali文件的调试功能，将在\ref{Sec:debug}节进一步介绍。
+
 \subsection{androguard}
+\lstinline!androguard!\footnote{\url{http://code.google.com/p/androguard/}}\index{androguard}是一个综合性的Android逆向分析工具，使用Python编写。\lstinline!androguard!的功能非常多，包括：
+\begin{itemize}
+\end{itemize}
+
 \subsection{apkinspector}
+
 \subsection{dexid}
