@@ -12,6 +12,38 @@ JVM是一个已经设计成熟并被实践检验过的成熟的虚拟机。但�
 
 Dalvik运行于其底层的Linux进程中，执行DEX格式文件中的Dalvik指令。通过一些库（zlib、Java核心库、openssl等）实现功能和对系统的调用，通过JNI规范调用本地代码执行。Dalvik利用Linux进程的用户ID来管理文件访问权限，并实现内存隔离，通过Linux进程间通信在应用程序之间共享数据。
 \section{DEX文件格式}
+\subsection{类型描述符}
+\label{SubSec:dalvik_data_type}
+DEX格式中，使用缩略符号表示数据类型，如下表所示：
+
+\begin{table}[htbp]
+  \caption{Dalvik数据类型描述符}
+  \label{Fig:dalvik_type}
+  \centering
+  \begin{tabular}{ll}
+    \toprule
+    \textbf{句法} & \textbf{含义} \\
+    \midrule
+    \lstinline!V! & \lstinline!void!，只能用于返回值 \\
+    \lstinline!Z! & \lstinline!boolean! \\
+    \lstinline!B! & \lstinline!byte! \\
+    \lstinline!S! & \lstinline!short! \\
+    \lstinline!C! & \lstinline!char! \\
+    \lstinline!I! & \lstinline!int! \\
+    \lstinline!J! & \lstinline!long! \\
+    \lstinline!F! & \lstinline!float! \\
+    \lstinline!D! & \lstinline!double! \\
+    \lstinline!Lfully/qualified/Name;! & \lstinline!fully/qualified/Name!类 \\
+    \lstinline![descriptor! & \lstinline!descriptor!类型的数组 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+例如，\lstinline![Ljava/lang/String;!表示\lstinline!String[]!。
+
+\section{ODEX文件格式}
+\label{Sec:odex}
+
 \section{Dalvik指令集}
 关于Dalvik指令集的主要参考文档是Android源码的dalvik/docs/dalvik-bytecode.html文件。本节的主要内容来自于该文档。
 
@@ -66,4 +98,111 @@ Dalvik运行于其底层的Linux进程中，执行DEX格式文件中的Dalvik指
   \end{longtable}
 \end{filecontents}
 \LTXtable{\textwidth}{chapter-cn/LTXtable-dalvikopcode.tmp}
+
 \section{smali语法}
+由于在静态分析时smali反汇编得到Dalvik指令是目前最常用的一种方法，本节基于smali的语法对Dalvik指令集做进一步介绍。
+
+本节的主要内容来自于lohan+\footnote{\url{http://androidcracking.blogspot.com}}在其博客上发表的两篇相关教程，在此对其表示感谢。
+
+其中涉及大量关于Dalvik中数据类型的语法，请回顾第\ref{SubSec:dalvik_data_type}节。
+
+\subsection{smali源文件}
+先来看一个smali源文件，比较长，我们在后面逐一解释：
+\lstinputlisting[language={},caption={smali源文件示例}]{code/example.smali}
+
+第1行指明该文件所定义的类的名称\lstinline!com.packageName.example!，以及类属性\lstinline!public!；第2行指明该类的父类为\lstinline!java.lang.Object!；第3行指明该文件的文件名为example.java：
+\begin{lstlisting}[language={}, firstnumber=1]
+.class public Lcom/packageName/example;
+.super Ljava/lang/Object;
+.source "example.java"
+\end{lstlisting}
+
+第5和7行给出了类的两个域实例，一个是名为someInt的整型变量，一个是名为someBool的布尔型变量：
+\begin{lstlisting}[language={}, firstnumber=5]
+.field public final someInt:I
+
+.field public final someBool:Z
+\end{lstlisting}
+
+接下来是该类的构造函数。先看一下这个函数的开始几行：
+\begin{lstlisting}[language={}, firstnumber=9]
+.method public constructor <init>(ZLjava/lang/String;I)V
+	.locals 6
+
+	.parameter "someBool"
+	.parameter "someInt"
+	.parameter "exampleString"
+\end{lstlisting}
+第9行的\lstinline!.method!前缀说明下面是一个函数，\lstinline!public!说明其作用域，\lstinline!constructor!说明其是类的构造函数，使用了默认的\lstinline!<init>!作为供人阅读的函数名（显然，构造函数的真实函数名与类名相同）。接下来的\lstinline!(ZLjava/lang/String;I)V!需要注意，其中括号内是参数类型列表，多个参数直接写在一起，不使用任何符号分隔，括号后是返回值类型。在这个构造函数中，有三个参数，第一个参数\lstinline!Z!是布尔型；第二个参数\lstinline!Ljava/lang/String;!是Java中的字符（注意在以\lstinline!L!开头接对象全称的这种参数语法上，最后以分号结尾以划分与后面类型的界限）；第三个参数\lstinline!I!是整型。返回值是\lstinline!V!，即\lstinline!void!型。因此，这个构造函数的原型为：
+\begin{lstlisting}[language=java, numbers=none]
+public void example(boolean someBool, String exampleString, int someInt);
+\end{lstlisting}
+如果对这一部分还不理解，请回过头再看一下\ref{SubSec:dalvik_data_type}一节。
+
+第10行指出这个函数需要使用六个寄存器来存储局部变量，在函数内部分别记为\lstinline!v0!、\lstinline!v1!到\lstinline!v5!。
+
+第12到14行给出了三个参数的名称。注意有时候代码被混淆后，这部分信息将丢失。另外注意这里列举的顺序与函数实际参数顺序并不一致。
+
+\begin{lstlisting}[language={}, firstnumber=16]
+	.prologue
+	.line 10
+	invoke-direct {p0}, Ljava/lang/Object;-><init>()V
+\end{lstlisting}
+第16行的\lstinline!.prologue!可以直接忽略。第17行的\lstinline!.line 10!标明行号，主要在调试时使用。
+
+第18行出现了函数调用\lstinline!invode-direct!。其中，\lstinline!p0!是指参数0，即\lstinline!this!指针，这条语句调用了父类\lstinline!java.lang.Object!的构造函数，其参数为空，返回值为\lstinline!void!。
+
+\begin{lstlisting}[language={}, firstnumber=20]
+	const-string v0, "i will not fear. fear is the mind-killer."
+	
+	const/4 v0, 0xF
+	
+	new-instance v1, Ljava/lang/StringBuilder;
+	const-string v2, "the spice must flow"
+	invoke-direct {v1, v2}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
+\end{lstlisting}
+第20行，将一个字符串的引用值赋给了局部寄存器\lstinline!v0!；第22行，将常量0xf（也就是十进制的15）赋给局部寄存器\lstinline!v0!，这会导致之前保存的字符串引用值丢失。
+
+第24到26行，动态分配了一个\lstinline!java.lang.StringBuilder!对象，将其引用值赋给\lstinline!v1!，又将一个字符串的引用值赋给\lstinline!v2!，最后调用了\lstinline!v1!指向的\lstinline!StringBuilder!对象的构造函数，将\lstinline!v2!作为参数。注意第26行的\lstinline!invoke-direct!指令，其后的\lstinline!{v1, v2}!，第一个参数和第二个参数的不同作用。
+
+\begin{lstlisting}[language={}, firstnumber=28]
+	invoke-virtual {v1, p1}, Ljava/lang/StringBuilder;->append(Z)Ljava/lang/StringBuilder;
+	move-result-object v1
+\end{lstlisting}
+第28行，调用了\lstinline!v1!指向\lstinline!StringBuilder!对象的\lstinline!append(boolean)!方法，其参数使用\lstinline!p1!，即该函数的第一个实际参数\lstinline!boolean someBool!。注意这条指令的返回值是一个新的\lstinline!java.lang.StringBuilder!对象，在第29行，将这个返回值重新赋给了\lstinline!v1!。综上，第20到29行的源码应该是：
+
+\begin{lstlisting}[language=java, numbers=none]
+  StringBuilder a = new StringBuilder("the spice must flow");
+  a = a.append(someBool);
+\end{lstlisting}
+
+我们跳过几行，直接看到第38行：
+
+\begin{lstlisting}[language={}, firstnumber=38]
+	const-string v0, "Tag"
+	invoke-static {v0, v1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
+	move-result v0
+\end{lstlisting}
+可以看到，在39行，调用了\lstinline!android.util.Log!中的\lstinline!int d(String, String)!这个静态方法，注意这里使用了恰当的\lstinline!invoke-static!指令，并且其两个参数\lstinline!{v0, v1}!直接作为了\lstinline!d()!的两个参数，而不再像前面\lstinline!invoke-direct!那样第一个参数是方法所在对象的句柄。
+
+再来看第50行：
+\begin{lstlisting}[language={}, firstnumber=50]
+	iput-boolean p1, p0, Lcom/packageName/example;->someBool:Z
+\end{lstlisting}
+使用了\lstinline!iput-boolean!指令，前面已经介绍，\lstinline!iput!是对对象实例中域的操作，这里对象实例由\lstinline!p0!给出，取出其名为\lstinline!someBool!的域，赋给\lstinline!p1!。注意这里遇到了一个名称作用域的问题，当前函数的第一个参数叫\lstinline!someBool!，当前类实例有一个域也叫\lstinline!someBool!，由于使用的\lstinline!iput!，因此这里使用类实例的域。这一行代码等价于源码：
+\begin{lstlisting}[language=java, numbers=none]
+  someBool = this.someBool;
+\end{lstlisting}
+
+最后，在第61行，这个构造函数使用\lstinline!return-void!指令退出。到此，读者可以尝试自己阅读和分析第64到78行的\lstinline!someMethod!方法。
+
+\subsection{常用函数结构}
+\subsubsection{构造函数和静态成员变量}
+\subsubsection{for结构}
+\subsubsection{switch结构}
+\subsubsection{try-cache结构}
+\subsubsection{数组}
+
+\lstinputlisting[language=java,caption={Java源码：函数结构}]{code/example-structures.java}
+
+\lstinputlisting[language={},caption={smali源码：函数结构}]{code/example-structures.smali}
