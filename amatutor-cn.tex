@@ -1,58 +1,6 @@
 %!TEX encoding = UTF-8 Unicode
 \documentclass[UTF8, a4paper, 11pt, oneside]{ctexbook}
-\usepackage[top=1in, bottom=1in, left=1in, right=1in]{geometry} 
-
-% 颜色，图像
-\usepackage{color, graphicx}
-
-\usepackage{booktabs}
-
-% 参考文献，按照被引先后排序
-\bibliographystyle{unsrt}
-
-% 索引
-\usepackage{makeidx}
-\makeindex
-
-% 使用Courier New作为等宽字体
-\renewcommand\ttdefault{pcr}
-
-% 源码高亮环境
-\definecolor{gray}{rgb}{0.9,0.9,0.9}
-\definecolor{darkgreen}{RGB}{47, 79, 47}
-\newfontfamily{\lstfamily}[Scale=.85]{Monaco}
-\usepackage{listings}
-\lstset{
-	basicstyle=\lstfamily, 
-	keywordstyle=\color{blue}, 
-	commentstyle=\color{darkgreen}, 
-	stringstyle=\color{red}, 
-	backgroundcolor=\color{gray},
-	frame=single,
-	numbers=left, 
-	numberstyle=\lstfamily\tiny,
-	stepnumber=1,  
-	xleftmargin=-1em,
-	xrightmargin=-3em, 
-	aboveskip=0em,
-	tabsize=4,
-	breaklines=true, 
-	title=\lstname,
-	extendedchars=false,	% 必须如此，否则和hyperref冲突，出错。
- }
- \renewcommand*{\lstlistingname}{代码}
-
-% 页码、页眉风格
-\pagestyle{plain}
-
-% 内部引用超链接
-\usepackage[xetex,unicode,colorlinks=true,urlcolor=blue,linkcolor=blue,citecolor=blue]{hyperref}
-
-\newcommand{\hrefurl}[1]{
-\begin{center}
-\href{#1}{#1}
-\end{center}
-}
+\usepackage{amatutor-cn}
 
 \begin{document}
 \frontmatter

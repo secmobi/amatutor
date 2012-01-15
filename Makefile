@@ -1,5 +1,6 @@
 texfile = amatutor-cn
-reffile = amatutor-cn
+reffile = $(texfile)
+styfile = $(texfile)
 subdir = chapter-cn
 
 TEX = xelatex
@@ -10,7 +11,7 @@ all: $(texfile).pdf
 
 pdf: all
 
-$(texfile).pdf: $(texfile).tex $(reffile).bib $(subdir)/*.tex
+$(texfile).pdf: $(texfile).tex $(styfile).sty $(reffile).bib $(subdir)/*.tex
 	$(TEX) $(texfile).tex
 	$(BIB) $(texfile).aux
 	$(IDX) $(texfile).idx
