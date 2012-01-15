@@ -1,5 +1,71 @@
 %!TEX encoding = UTF-8 Unicode
 \chapter{Dalvik虚拟机}
 \label{Chap:dalvik}
+Dalvik是专为Android设计的一种类JVM虚拟机，是Android应用程序的实际运行平台。从恶意代码分析的角度，Dalvik上DEX文件格式的重要性，相当于Windows上PE文件格式；Dalvik指令集的重要性，相当于PC上x86指令集的重要性。在静态分析中，分析人员有一半以上的时间是在与Dalvik指令打交道；在动态分析中，绝大部分时候没有恶意代码源码，也会涉及Dalvik级的调试；如果要将一些分析工作自动化，或展开一些研究，就不得不进行DEX格式的解析。
+
+\section{Dalvik虚拟机的设计}
+JVM是一个已经设计成熟并被实践检验过的成熟的虚拟机。但在Android这样的移动平台，存在CPU性能较低、可用内存极少、电力由电池供应、没有交换空间等限制，直接使用JVM运行复杂的应用程序较为困难。此外，使用JVM还存在许可的问题。因此，Dan Bornstein设计并实现了Dalvik虚拟（名字来源于冰岛的一个小渔村）。
+
+从虚拟级别上来说，Dalvik是一个进程级的虚拟机，提供普通应用程序的运行环境，像Java语言的JVM、.NET平台的CLR一样。从体系结构来看，Dalvik是一个基于寄存器的虚拟机。
+
+与JVM这种基于栈的虚拟机相比，基于寄存器的虚拟机在对相同应用程序的执行上快三分之一，还能从流水线型处理器获得额外的性能提升，并有更快的加载速度和更好的容错性\cite{dalvik_analysis}。
+
+Dalvik运行于其底层的Linux进程中，执行DEX格式文件中的Dalvik指令。通过一些库（zlib、Java核心库、openssl等）实现功能和对系统的调用，通过JNI规范调用本地代码执行。Dalvik利用Linux进程的用户ID来管理文件访问权限，并实现内存隔离，通过Linux进程间通信在应用程序之间共享数据。
 \section{DEX文件格式}
 \section{Dalvik指令集}
+关于Dalvik指令集的主要参考文档是Android源码的dalvik/docs/dalvik-bytecode.html文件。本节的主要内容来自于该文档。
+
+指令集的设计是一门艺术。从分析人员的角度考虑，不需要了解其中诸多细节。下面是指令集中为了便于人阅读的一些语法规则：
+\begin{itemize}
+  \item 两个操作数，前面是目的寄存器，后面是源寄存器
+  \item 一般类型的64位opcode在32位opcode基础上加\lstinline!-wide!后缀；特殊类型opcode在一般类型opcode基础上加类型后缀，例如\lstinline!-char!、\lstinline!-int!、\lstinline!-long!、\lstinline!-float!、\lstinline!-string!、\lstinline!-object!等
+  \item 对不是32位或64位操作的opcode，还加上特定后缀以说明其操作位数，例如\lstinline!/8!表示8位操作，\lstinline!/16!表示16位操作
+\end{itemize}
+例如，对指令\lstinline!move-wide/from16 vAA, vBBBB!，其中字段含义如下：
+\begin{itemize}
+  \item[move] 基本的opcode，说明指令功能
+  \item[wide] 名称后缀，说明它操作64位数据
+  \item[from16] 指令后缀，说明它的源操作数是一个16位寄存器
+  \item[vAA] 目的寄存器，\lstinline!AA!是两个字母，表示寄存器的范围是\lstinline!v0!到\lstinline!v255!（一个字母表示4位）
+  \item[vBBBB] 源寄存器，\lstinline!BBBB!是四个字母，表示寄存器的范围是\lstinline!v0!到\lstinline!v65535!
+\end{itemize}
+下面我们介绍Dalvik指令集，限于篇幅只列举和说明基本opcode，关于每个opcode可以适用的名称后缀、指令后缀、寄存器范围等，请参考dalvik/docs/dalvik-bytecode.html文件。
+\begin{table}[htbp]
+  \caption{Dalvik指令}
+  \centering
+  \begin{tabular}{ll}
+    \toprule
+    基本指令 & 描述 \\
+    \midrule
+    \lstinline!nop! & 空指令 \\
+    \lstinline!move! & 将源寄存器的值拷贝给目标寄存器 \\
+    \lstinline!move-result! & 将最近一次\lstinline!invoke!类型指令（函数调用）所返回的结果拷贝给指定的寄存器 \\
+    \lstinline!move-exception! & 将最近一次捕获到的异常值拷贝给指定寄存器 \\
+    \lstinline!return-void! & 在\lstinline!void!型的方法中返回，类似于C中的直接\lstinline!return! \\
+    \lstinline!return! & 在方法中，以指定寄存器的值返回 \\
+    \lstinline!const! & 将一个常量值（或常量字符串）赋给指定的寄存器 \\
+    \lstinline!monitor-enter! & 请求对指定目标的监视器 \\
+    \lstinline!monitor-exit! & 释放对指定目标的监视器 \\
+    \lstinline!check-cast! & TODO \\
+    \lstinline!instance-of! & TODO \\
+    \lstinline!array-length! & TODO \\
+    \lstinline!new-instance! & TODO \\
+    \lstinline!new-array! & TODO \\
+    \lstinline!filled-new-array! & TODO \\
+    \lstinline!fill-array-data! & TODO \\
+    \lstinline!throw! & TODO \\
+    \lstinline!goto! & TODO \\
+    \lstinline!packed-switch! & TODO \\
+    \lstinline!sparse-switch! & TODO \\
+    \lstinline!cmp! & TODO \\
+    \lstinline!if-!test & TODO \\
+    \lstinline!if-!test\lstinline!z! & TODO \\
+    \lstinline!aget!,\lstinline!aput! & TODO \\
+    \lstinline!iget!,\lstinline!iput! & TODO \\
+    \lstinline!sget!,\lstinline!sput! & TODO \\
+    unop & TODO \\
+    binop & TODO \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\section{smali语法}
