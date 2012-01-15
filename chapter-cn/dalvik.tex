@@ -30,42 +30,40 @@ Dalvik运行于其底层的Linux进程中，执行DEX格式文件中的Dalvik指
   \item[vBBBB] 源寄存器，\lstinline!BBBB!是四个字母，表示寄存器的范围是\lstinline!v0!到\lstinline!v65535!
 \end{itemize}
 下面我们介绍Dalvik指令集，限于篇幅只列举和说明基本opcode，关于每个opcode可以适用的名称后缀、指令后缀、寄存器范围等，请参考dalvik/docs/dalvik-bytecode.html文件。
-\begin{table}[htbp]
-  \caption{Dalvik指令}
-  \centering
-  \begin{tabular}{ll}
-    \toprule
-    基本指令 & 描述 \\
-    \midrule
-    \lstinline!nop! & 空指令 \\
-    \lstinline!move! & 将源寄存器的值拷贝给目标寄存器 \\
-    \lstinline!move-result! & 将最近一次\lstinline!invoke!类型指令（函数调用）所返回的结果拷贝给指定的寄存器 \\
-    \lstinline!move-exception! & 将最近一次捕获到的异常值拷贝给指定寄存器 \\
-    \lstinline!return-void! & 在\lstinline!void!型的方法中返回，类似于C中的直接\lstinline!return! \\
-    \lstinline!return! & 在方法中，以指定寄存器的值返回 \\
-    \lstinline!const! & 将一个常量值（或常量字符串）赋给指定的寄存器 \\
-    \lstinline!monitor-enter! & 请求对指定目标的监视器 \\
-    \lstinline!monitor-exit! & 释放对指定目标的监视器 \\
-    \lstinline!check-cast! & TODO \\
-    \lstinline!instance-of! & TODO \\
-    \lstinline!array-length! & TODO \\
-    \lstinline!new-instance! & TODO \\
-    \lstinline!new-array! & TODO \\
-    \lstinline!filled-new-array! & TODO \\
-    \lstinline!fill-array-data! & TODO \\
-    \lstinline!throw! & TODO \\
-    \lstinline!goto! & TODO \\
-    \lstinline!packed-switch! & TODO \\
-    \lstinline!sparse-switch! & TODO \\
-    \lstinline!cmp! & TODO \\
-    \lstinline!if-!test & TODO \\
-    \lstinline!if-!test\lstinline!z! & TODO \\
-    \lstinline!aget!,\lstinline!aput! & TODO \\
-    \lstinline!iget!,\lstinline!iput! & TODO \\
-    \lstinline!sget!,\lstinline!sput! & TODO \\
-    unop & TODO \\
-    binop & TODO \\
-    \bottomrule
-  \end{tabular}
-\end{table}
+\begin{filecontents}{chapter-cn/LTXtable-dalvikopcode.tmp}
+  \begin{longtable}{lX}
+    \hline \textbf{基本指令} & \textbf{描述} \\
+    \hline \lstinline!nop! & 空指令 \\
+    \hline \lstinline!move! & 将源寄存器的值拷贝给目标寄存器 \\
+    \hline \lstinline!move-result! & 将最近一次\lstinline!invoke!类型指令（函数调用）所返回的结果拷贝给指定的寄存器 \\
+    \hline \lstinline!move-exception! & 将最近一次捕获到的异常值拷贝给指定寄存器 \\
+    \hline \lstinline!return-void! & 在\lstinline!void!型的方法中返回，类似于C中的直接\lstinline!return! \\
+    \hline \lstinline!return! & 在方法中，以指定寄存器的值返回 \\
+    \hline \lstinline!const! & 将一个常量值（或常量字符串）赋给指定的寄存器 \\
+    \hline \lstinline!monitor-enter! & 请求对指定目标的监视器 \\
+    \hline \lstinline!monitor-exit! & 释放对指定目标的监视器 \\
+    \hline \lstinline!check-cast! & 如果寄存器不能被动态转换为指定类型，就释放一个\lstinline!ClassCastException!异常 \\
+    \hline \lstinline!instance-of! & 检查源寄存器中引用的值是否是指定类型数据，将结果1或0保存至目标寄存器 \\
+    \hline \lstinline!array-length! & 将源寄存器指向的数组的长度取给目标寄存器 \\
+    \hline \lstinline!new-instance! & 动态创建指定类型的一个新对象实例，将其引用值赋给目标寄存器 \\
+    \hline \lstinline!new-array! & 动态创建指定类型的一个数组，其元素个数由源寄存器给出，将其引用值赋给目标寄存器 \\
+    \hline \lstinline!filled-new-array! & 动态创建指定类型的一个数组，并以指定的值初始化，得到的结果必须使用\lstinline!move-result-object!来保存到特定寄存器，就像\lstinline!invoke!那样 \\
+    \hline \lstinline!fill-array-data! & 以指定的数据填充一个数组 \\
+    \hline \lstinline!throw! & 抛出一个指定的异常 \\
+    \hline \lstinline!goto! & 无条件跳转至指定位置的指令 \\
+    \hline \lstinline!packed-switch! & 测试寄存器的值，跳转到指定位置的指令\\
+    \hline \lstinline!sparse-switch! & 测试寄存器的值，跳转到指定位置的指令，位置保存在排好序的值-偏移对中 \\
+    \hline \lstinline!cmp! & 比较两个寄存器中的\lstinline!float!或\lstinline!double!或\lstinline!long!值，返回等于（0）、大于（-1）、小于（1）到目的寄存器 \\
+    \hline \lstinline!if-!test & 例如\lstinline!if-eq!、\lstinline!if-lt!、\lstinline!if-ge!等，如果要比较的两个寄存器的值符合test条件，就跳转到指定偏移的指令 \\
+    \hline \lstinline!if-!test\lstinline!z! & 与\lstinline!if-!test类似，但是是一个寄存器与0比较 \\
+    \hline \lstinline!aget!,\lstinline!aput! & 根据索引读或者写一个数组（array）的指定元素 \\
+    \hline \lstinline!iget!,\lstinline!iput! & 读或者写一个对象实例（instance）中的特定的域\\
+    \hline \lstinline!sget!,\lstinline!sput! & 读或者写一个静态域（static field）中的特定的域\\
+    \hline \lstinline!invoke-!kind & 函数调用，类型kind包括：\lstinline!virtual!虚方法、\lstinline!super!最近的父类的虚方法、\lstinline!direct!非静态直接方法、\lstinline!static!静态方法、\lstinline!interface!接口方法\\
+    \hline unop & 单变量算术运算，例如\lstinline!neg-int!取整数的补码、\lstinline!long-to-float!将长整数转换为浮点数等等 \\
+    \hline binop & 双变量算术运算，例如\lstinline!sub-int!整数相减，\lstinline!shr-long!长整数算术右移等等 \\
+    \hline 
+  \end{longtable}
+\end{filecontents}
+\LTXtable{\textwidth}{chapter-cn/LTXtable-dalvikopcode.tmp}
 \section{smali语法}

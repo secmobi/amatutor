@@ -47,6 +47,10 @@
 % 内部引用超链接
 \usepackage[xetex,unicode,colorlinks=true,urlcolor=blue,linkcolor=blue,citecolor=blue]{hyperref}
 
+% ltxtable = tabularx换行表格 + longtable换页表格
+% filecontents 使表格在同一文件内
+\usepackage{ltxtable, filecontents}
+
 \newcommand{\hrefurl}[1]{
 \begin{center}
 \href{#1}{#1}

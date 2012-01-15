@@ -22,5 +22,5 @@ clean:
 	@find . | egrep "\.(aux|idx|log|out|gz|toc|bak|bbl|blg|ilg|ind)" | xargs rm -f
 	@find . | egrep "\.pdf" | xargs rm -f
 	@find . | egrep "~" | xargs rm -f
-	@find $(subdir) | egrep "\.aux" | xargs rm -f
+	@find $(subdir) | egrep "\.(aux|tmp)" | xargs rm -f
 	@find $(subdir) | egrep "~" | xargs rm -f
