@@ -102,7 +102,7 @@ DEX格式中，使用缩略符号表示数据类型，如下表所示：
 \section{smali语法}
 由于在静态分析时smali反汇编得到Dalvik指令是目前最常用的一种方法，本节基于smali的语法对Dalvik指令集做进一步介绍。
 
-本节的主要内容来自于lohan+\footnote{\url{http://androidcracking.blogspot.com}}在其博客上发表的两篇相关教程，在此对其表示感谢。
+本节的代码来自于lohan+在其博客\footnote{\url{http://androidcracking.blogspot.com}，这个关于Android逆向和破解技术的博客上有很多不错的文章，建议仔细阅读}上发表的两篇相关教程，他已经授权本文使用，在此表示感谢。
 
 其中涉及大量关于Dalvik中数据类型的语法，请回顾第\ref{SubSec:dalvik_data_type}节。
 
@@ -161,12 +161,25 @@ public void example(boolean someBool, String exampleString, int someInt);
 最后，在第61行，这个构造函数使用\lstinline!return-void!指令退出。到此，读者可以尝试自己阅读和分析第64到78行的\lstinline!someMethod!方法。
 
 \subsection{常用函数结构}
+下面我们再看一个代码示例，这一次对比Java和smali代码一起看。
+
 \subsubsection{构造函数和静态成员变量}
+\lstinputlisting[language=java, firstline=8, lastline=11, firstnumber=8]{code/example-structures.java}
+\lstinputlisting[language={}, firstline=5, lastline=18, firstnumber=5]{code/example-structures.smali}
+
 \subsubsection{for结构}
+\lstinputlisting[language=java, firstline=13, lastline=17, firstnumber=13]{code/example-structures.java}
+\lstinputlisting[language={}, firstline=62, lastline=97, firstnumber=62]{code/example-structures.smali}
+
 \subsubsection{switch结构}
+\lstinputlisting[language=java, firstline=19, lastline=29, firstnumber=19]{code/example-structures.java}
+\lstinputlisting[language={}, firstline=99, lastline=158, firstnumber=99]{code/example-structures.smali}
+
 \subsubsection{try-cache结构}
+\lstinputlisting[language=java, firstline=31, lastline=46, firstnumber=31]{code/example-structures.java}
+\lstinputlisting[language={}, firstline=160, lastline=262, firstnumber=160]{code/example-structures.smali}
+
 \subsubsection{数组}
+\lstinputlisting[language=java, firstline=48, lastline=59, firstnumber=48]{code/example-structures.java}
+\lstinputlisting[language={}, firstline=20, lastline=60, firstnumber=20]{code/example-structures.smali}
 
-\lstinputlisting[language=java,caption={Java源码：函数结构}]{code/example-structures.java}
-
-\lstinputlisting[language={},caption={smali源码：函数结构}]{code/example-structures.smali}
