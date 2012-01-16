@@ -160,16 +160,22 @@ public void example(boolean someBool, String exampleString, int someInt);
 
 最后，在第61行，这个构造函数使用\lstinline!return-void!指令退出。到此，读者可以尝试自己阅读和分析第64到78行的\lstinline!someMethod!方法。
 
-\subsection{常用函数结构}
-下面我们再看一个代码示例，这一次对比Java和smali代码一起看。
+\subsection{常用代码结构}
+无论是学习哪个指令集的反汇编，最好的方法都是自己动手将常见的代码结构写出来、编译好，再反汇编，将源码与反汇编结果对应起来看。lohan+再次为我们提供了这样的资源。
 
-\subsubsection{构造函数和静态成员变量}
-\lstinputlisting[language=java, firstline=8, lastline=11, firstnumber=8]{code/example-structures.java}
-\lstinputlisting[language=smali, firstline=5, lastline=18, firstnumber=5]{code/example-structures.smali}
+\subsubsection{构造函数和域}
+\lstinputlisting[language=java, firstline=8, lastline=11, firstnumber=8, caption={构造函数、域的Java示例}]{code/example-structures.java}
+\lstinputlisting[language=smali, firstline=5, lastline=18, firstnumber=5, caption={构造函数、域的smali示例}]{code/example-structures.smali}
+
+Java中的静态变量，也就是域\lstinline!Count!，在smali中被\lstinline!.field!引导申明，说明其是一个静态私有\lstinline!int!型变量。
+
+Java中类\lstinline!example!的构造函数，在smali中被\lstinline!.method!引导并被\lstinline!constructor!修饰，其方法名变成了\lstinline!<init>!。注意在第12行，该方法显式地调用了其父类的构造函数（同样以\lstinline!<init>!命名）。
+
+在代码的第15行，\lstinline!sput!指令的作用是赋给一个域变量指定的值。注意域是类有关而与具体对象无关的，因此需要使用\lstinline!Lcom/lohan/crackme1/example;!来指出其归属关系。这也是为什么\lstinline!sput!需要单独作为一条指令。
 
 \subsubsection{for结构}
-\lstinputlisting[language=java, firstline=13, lastline=17, firstnumber=13]{code/example-structures.java}
-\lstinputlisting[language=smali, firstline=62, lastline=97, firstnumber=62]{code/example-structures.smali}
+\lstinputlisting[language=java, firstline=13, lastline=17, firstnumber=13, caption={for结构的Java示例}]{code/example-structures.java}
+\lstinputlisting[language=smali, firstline=62, lastline=97, firstnumber=62, caption={for结构的smali示例}]{code/example-structures.smali}
 
 \subsubsection{switch结构}
 \lstinputlisting[language=java, firstline=19, lastline=29, firstnumber=19]{code/example-structures.java}
