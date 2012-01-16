@@ -111,28 +111,13 @@ DEX格式中，使用缩略符号表示数据类型，如下表所示：
 \lstinputlisting[language={},caption={smali源文件示例}]{code/example.smali}
 
 第1行指明该文件所定义的类的名称\lstinline!com.packageName.example!，以及类属性\lstinline!public!；第2行指明该类的父类为\lstinline!java.lang.Object!；第3行指明该文件的文件名为example.java：
-\begin{lstlisting}[language={}, firstnumber=1]
-.class public Lcom/packageName/example;
-.super Ljava/lang/Object;
-.source "example.java"
-\end{lstlisting}
+\lstinputlisting[language={}, firstline=1, lastline=3, firstnumber=1]{code/example.smali}
 
 第5和7行给出了类的两个域实例，一个是名为someInt的整型变量，一个是名为someBool的布尔型变量：
-\begin{lstlisting}[language={}, firstnumber=5]
-.field public final someInt:I
-
-.field public final someBool:Z
-\end{lstlisting}
+\lstinputlisting[language={}, firstline=5, lastline=7, firstnumber=5]{code/example.smali}
 
 接下来是该类的构造函数。先看一下这个函数的开始几行：
-\begin{lstlisting}[language={}, firstnumber=9]
-.method public constructor <init>(ZLjava/lang/String;I)V
-	.locals 6
-
-	.parameter "someBool"
-	.parameter "someInt"
-	.parameter "exampleString"
-\end{lstlisting}
+\lstinputlisting[language={}, firstline=9, lastline=14, firstnumber=9]{code/example.smali}
 第9行的\lstinline!.method!前缀说明下面是一个函数，\lstinline!public!说明其作用域，\lstinline!constructor!说明其是类的构造函数，使用了默认的\lstinline!<init>!作为供人阅读的函数名（显然，构造函数的真实函数名与类名相同）。接下来的\lstinline!(ZLjava/lang/String;I)V!需要注意，其中括号内是参数类型列表，多个参数直接写在一起，不使用任何符号分隔，括号后是返回值类型。在这个构造函数中，有三个参数，第一个参数\lstinline!Z!是布尔型；第二个参数\lstinline!Ljava/lang/String;!是Java中的字符（注意在以\lstinline!L!开头接对象全称的这种参数语法上，最后以分号结尾以划分与后面类型的界限）；第三个参数\lstinline!I!是整型。返回值是\lstinline!V!，即\lstinline!void!型。因此，这个构造函数的原型为：
 \begin{lstlisting}[language=java, numbers=none]
 public void example(boolean someBool, String exampleString, int someInt);
@@ -143,32 +128,17 @@ public void example(boolean someBool, String exampleString, int someInt);
 
 第12到14行给出了三个参数的名称。注意有时候代码被混淆后，这部分信息将丢失。另外注意这里列举的顺序与函数实际参数顺序并不一致。
 
-\begin{lstlisting}[language={}, firstnumber=16]
-	.prologue
-	.line 10
-	invoke-direct {p0}, Ljava/lang/Object;-><init>()V
-\end{lstlisting}
+\lstinputlisting[language={}, firstline=16, lastline=18, firstnumber=16]{code/example.smali}
 第16行的\lstinline!.prologue!可以直接忽略。第17行的\lstinline!.line 10!标明行号，主要在调试时使用。
 
 第18行出现了函数调用\lstinline!invode-direct!。其中，\lstinline!p0!是指参数0，即\lstinline!this!指针，这条语句调用了父类\lstinline!java.lang.Object!的构造函数，其参数为空，返回值为\lstinline!void!。
 
-\begin{lstlisting}[language={}, firstnumber=20]
-	const-string v0, "i will not fear. fear is the mind-killer."
-	
-	const/4 v0, 0xF
-	
-	new-instance v1, Ljava/lang/StringBuilder;
-	const-string v2, "the spice must flow"
-	invoke-direct {v1, v2}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
-\end{lstlisting}
+\lstinputlisting[language={}, firstline=20, lastline=26, firstnumber=20]{code/example.smali}
 第20行，将一个字符串的引用值赋给了局部寄存器\lstinline!v0!；第22行，将常量0xf（也就是十进制的15）赋给局部寄存器\lstinline!v0!，这会导致之前保存的字符串引用值丢失。
 
 第24到26行，动态分配了一个\lstinline!java.lang.StringBuilder!对象，将其引用值赋给\lstinline!v1!，又将一个字符串的引用值赋给\lstinline!v2!，最后调用了\lstinline!v1!指向的\lstinline!StringBuilder!对象的构造函数，将\lstinline!v2!作为参数。注意第26行的\lstinline!invoke-direct!指令，其后的\lstinline!{v1, v2}!，第一个参数和第二个参数的不同作用。
 
-\begin{lstlisting}[language={}, firstnumber=28]
-	invoke-virtual {v1, p1}, Ljava/lang/StringBuilder;->append(Z)Ljava/lang/StringBuilder;
-	move-result-object v1
-\end{lstlisting}
+\lstinputlisting[language={}, firstline=28, lastline=29, firstnumber=28]{code/example.smali}
 第28行，调用了\lstinline!v1!指向\lstinline!StringBuilder!对象的\lstinline!append(boolean)!方法，其参数使用\lstinline!p1!，即该函数的第一个实际参数\lstinline!boolean someBool!。注意这条指令的返回值是一个新的\lstinline!java.lang.StringBuilder!对象，在第29行，将这个返回值重新赋给了\lstinline!v1!。综上，第20到29行的源码应该是：
 
 \begin{lstlisting}[language=java, numbers=none]
@@ -178,17 +148,11 @@ public void example(boolean someBool, String exampleString, int someInt);
 
 我们跳过几行，直接看到第38行：
 
-\begin{lstlisting}[language={}, firstnumber=38]
-	const-string v0, "Tag"
-	invoke-static {v0, v1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
-	move-result v0
-\end{lstlisting}
+\lstinputlisting[language={}, firstline=38, lastline=40, firstnumber=38]{code/example.smali}
 可以看到，在39行，调用了\lstinline!android.util.Log!中的\lstinline!int d(String, String)!这个静态方法，注意这里使用了恰当的\lstinline!invoke-static!指令，并且其两个参数\lstinline!{v0, v1}!直接作为了\lstinline!d()!的两个参数，而不再像前面\lstinline!invoke-direct!那样第一个参数是方法所在对象的句柄。
 
 再来看第50行：
-\begin{lstlisting}[language={}, firstnumber=50]
-	iput-boolean p1, p0, Lcom/packageName/example;->someBool:Z
-\end{lstlisting}
+\lstinputlisting[language={}, firstline=50, lastline=50, firstnumber=50]{code/example.smali}
 使用了\lstinline!iput-boolean!指令，前面已经介绍，\lstinline!iput!是对对象实例中域的操作，这里对象实例由\lstinline!p0!给出，取出其名为\lstinline!someBool!的域，赋给\lstinline!p1!。注意这里遇到了一个名称作用域的问题，当前函数的第一个参数叫\lstinline!someBool!，当前类实例有一个域也叫\lstinline!someBool!，由于使用的\lstinline!iput!，因此这里使用类实例的域。这一行代码等价于源码：
 \begin{lstlisting}[language=java, numbers=none]
   someBool = this.someBool;

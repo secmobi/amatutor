@@ -353,7 +353,7 @@ zergRush.c成功地利用了这一漏洞，并进一步：
 \end{description}
 
 \subsection{main函数}
-\lstinputlisting[language=c,caption={zergRush的main函数}, firstnumber=387]{code/zergRush.main.c}
+\lstinputlisting[language=c,caption={zergRush的main函数}, firstnumber=387, firstline=387, lastline=536]{code/zergRush.c}
 \begin{itemize}
 \item[395-396] 如果当前程序是以root权限运行，并且程序名为boomsh，则调用do\_root，执行附加的两步操作
 \item[402-405] 将自身拷贝至/data/local/tmp/boomsh，并设置其权限为0711，将/system/bin/sh拷贝至/data/local/tmp/sh。
@@ -369,7 +369,7 @@ zergRush.c成功地利用了这一漏洞，并进一步：
 \end{itemize}
 
 \subsection{do\_root函数}
-\lstinputlisting[language=c,caption={zergRush的do\_root函数}, firstnumber=377]{code/zergRush.doroot.c}
+\lstinputlisting[language=c,caption={zergRush的do\_root函数}, firstnumber=377, firstline=377, lastline=384]{code/zergRush.c}
 \begin{itemize}
 \item[395-396] 若当前程序是以root权限执行的/data/local/tmp/boomsh，则调用do\_root函数。
 \item[379] 重新mount目录/data。
@@ -379,7 +379,7 @@ zergRush.c成功地利用了这一漏洞，并进一步：
 \end{itemize}
 
 \subsection{find\_stack\_addr函数}
-\lstinputlisting[language=c,caption={zergRush的find\_stack\_addr函数}, firstnumber=324]{code/zergRush.findstackaddr.c}
+\lstinputlisting[language=c,caption={zergRush的find\_stack\_addr函数}, firstnumber=324, firstline=324, lastline=374]{code/zergRush.c}
 \begin{itemize}
 \item[332-333] 清空logcat缓存，删除老的/data/local/tmp/crashlog日志文件。
 \item[335-340] 重启一个logcat，将其日志输出至/data/local/tmp/crashlog文件。
@@ -389,7 +389,7 @@ zergRush.c成功地利用了这一漏洞，并进一步：
 \end{itemize}
 
 \subsection{do\_fault函数}
-\lstinputlisting[language=c,caption={zergRush的do\_fault函数}, firstnumber=163]{code/zergRush.dofault.c}
+\lstinputlisting[language=c,caption={zergRush的do\_fault函数}, firstnumber=163, firstline=163, lastline=221]{code/zergRush.c}
 \begin{itemize}
 \item[165] buf是最后发送至vold的shellcode。
 \item[169-181] padding是shellcode中的一段填充内容，全部为Z，无意义。长度为padding\_sz + 12。padding\_sz由108减去jumpsz计算得到。
