@@ -174,6 +174,7 @@ Java中类\lstinline!example!的构造函数，在smali中被\lstinline!.method!
 在代码的第15行，\lstinline!sput!指令的作用是赋给一个域变量指定的值。注意域是类有关而与具体对象无关的，因此需要使用\lstinline!Lcom/lohan/crackme1/example;!来指出其归属关系。这也是为什么\lstinline!sput!需要单独作为一条指令。
 
 \subsubsection{for结构}
+\label{SubSubSec:dalvik-smali-for}
 \lstinputlisting[language=java, firstline=13, lastline=17, firstnumber=13, caption={for结构的Java示例}]{code/example-structures.java}
 
 \lstinputlisting[language=smali, firstline=62, lastline=97, firstnumber=62, caption={for结构的smali示例}]{code/example-structures.smali}
@@ -197,14 +198,56 @@ System.out.println("current val for loop: " + i);
 这就是smali中\lstinline!for!循环的标准结构：两个位置标签，一个用于没有越界时跳过\lstinline!return!语句，一个用于加1后循环。
 
 \subsubsection{switch结构}
-\lstinputlisting[language=java, firstline=19, lastline=29, firstnumber=19]{code/example-structures.java}
-\lstinputlisting[language=smali, firstline=99, lastline=158, firstnumber=99]{code/example-structures.smali}
+\lstinputlisting[language=java, firstline=19, lastline=29, firstnumber=19, caption={switch结构的Java示例}]{code/example-structures.java}
+\lstinputlisting[language=smali, firstline=99, lastline=158, firstnumber=99, caption={switch结构的smali示例}]{code/example-structures.smali}
 
-\subsubsection{try-cache结构}
-\lstinputlisting[language=java, firstline=31, lastline=46, firstnumber=31]{code/example-structures.java}
-\lstinputlisting[language=smali, firstline=160, lastline=262, firstnumber=160]{code/example-structures.smali}
+smali中的\lstinline!switch!结构非常有特色。
+
+首先看第109行，有一条\lstinline!sparse-switch!指令，从名字就可以看出其用于解析\lstinline!switch!结构。它有两个操作数，第一个是用于判断的值，在这个例子里是整形变量\lstinline!val!；第二个操作数名为\lstinline!:sswitch_data_2e!，这实质上是一个标签（即为一个地址）。
+
+先看151行，这里有一段由\lstinline!.sparse-switch!和\lstinline!.end sparse-switch!修饰符界定的指令结构，其中每一行的格式类似于\lstinline!0x1 -> :sswitch_d!，其含义是：当\lstinline!switch!选择的值为\lstinline!0x1!时，跳转到\lstinline!:sswitch_d!这个标签指向的位置开始执行。
+
+我们继续到这个跳转位置\lstinline!:sswitch_d!看，它位于121行，执行了该分支的指令后，执行了\lstinline!goto!，跳转到一个被标记为\lstinline!:goto_c!的地方直接返回。注意所有的分支最后都跳转到了这同一个位置返回。
+
+最后，112到114这几行是做什么用的？对比一下Java源码可以看到，它是给\lstinline!default!分支使用的。
+
+现在，让我们把整个代码合并到一起来看。在smali中，\lstinline!switch!结构的代码，首先使用\lstinline!sparse-switch!解析一个集中的跳转表，而这个跳转表会位于函数的最后；接下来根据跳转表，跳转到相应的分支执行；执行完成后，跳转到\lstinline!switch!后面的代码执行。
+
+这种独特的设计，导致诸如\lstinline!dex2jar!等反编译工具在将Dalvik指令转成JVM指令，并由\lstinline!jd-gui!反将JVM指令反编译为Java源码时，出现错误。例如，112到125行的指令就会被反编译如下：
+
+\begin{lstlisting}[language=java, numbers=none]
+  System.out.println("invalid value");
+  while(1){
+    return;
+    System.out.println("val 1"); 
+  }
+\end{lstlisting}
+造成这种错误，就是没有解析\lstinline!sparse-switch!所指向的跳转表所致。
+
+\subsubsection{try-catch结构}
+\lstinputlisting[language=java, firstline=31, lastline=46, firstnumber=31, caption={try-catch结构的Java示例}]{code/example-structures.java}
+\lstinputlisting[language=smali, firstline=160, lastline=262, firstnumber=160, caption={try-catch结构的smali示例}]{code/example-structures.smali}
+
+Dalvik中，\lstinline!try-catch!结构也非常独特，其实现方式与\lstinline!switch!很相似。
+
+首先看一下187和189行，如下：
+\lstinputlisting[language=smali, firstline=187, lastline=189, firstnumber=187, caption={异常捕获结构片段}]{code/example-structures.smali}
+
+这两行均由\lstinline!.catch!修饰符引导，后面有三个数据，第一个是要捕获的异常类型，例如\lstinline!Ljava/net/MalformedURLException;!；第二个是抛出异常的代码范围，在187行的\lstinline!{:try_start_4 .. :try_end_10}!，含义是\lstinline!:try_start_4!到\lstinline!:try_end_10!之间的代码抛出的异常在其接受范围内；第三个数据是处理异常的代码位置，例如\lstinline!:catch_11!。
+
+如果分别看\lstinline!:try_start_4!和\lstinline!:try_end_10!之间的代码、\lstinline!:catch_11!开始的代码，会发现正好和源码一一对应上。这没有什么特别之处。
+
+另一个细节是，在这个例子中，\lstinline!catch!处理完后，\lstinline!goto!到了195行函数返回。与\lstinline!switch!类似的原因，由于对\lstinline!.catch!修饰符的解析不足，导致\lstinline!dex2jar!和\lstinline!jd-gui!的组合在处理这样的结构时也会出错。
 
 \subsubsection{数组}
-\lstinputlisting[language=java, firstline=48, lastline=59, firstnumber=48]{code/example-structures.java}
-\lstinputlisting[language=smali, firstline=20, lastline=60, firstnumber=20]{code/example-structures.smali}
+\lstinputlisting[language=java, firstline=48, lastline=59, firstnumber=48, caption={数组的Java示例}]{code/example-structures.java}
+\lstinputlisting[language=smali, firstline=20, lastline=60, firstnumber=20, caption={数组的smali示例}]{code/example-structures.smali}
+
+首先看一下数组的动态分配。在第30行，使用了\lstinline!new-array!指令，它有三个操作数，第一个是用于保存结果的寄存器，第二个是用于提供数组大小的寄存器，第三个指出数组类型（注意不是数组元素的类型）。这里的类型是\lstinline![Ljava/lang/String;!，回忆\ref{SubSec:dalvik_data_type}节提到的数据类型描述方法，其中\lstinline![!表明它是一个数组，后面紧接元素类型。
+
+在35行，要赋给数组元素的字符串值，直接使用\lstinline!const-string!生成了。注意与80到91行（参考前面的“for结构”）的区别，在那里，smali用\lstinline!StringBuilder!对象来初始化字符串，然后通过该对象的\lstinline!toString!方法得到字符串对象（请读者自己思考为什么这两处使用了不同的方法）。
+
+在得到\lstinline!java.lang.String!对象后，使用了\lstinline!aput-object!将字符串对象赋给字符串数组中特定的元素。\lstinline!aput!中的\lstinline!a!是array的缩写，它有三个操作数，第一个是指向源对象的寄存器，第二个是保存了数组的寄存器，第三个是要操作的数组下标，即索引。可以在一条指令内直接对数组的某一元素直接操作，是JVM和Dalvik指令集的一个特点。
+
+在43行，为了取出数组的两个元素进行对比，使用了\lstinline!aget-object!指令，它是与\lstinline!aput-object!对应的指令。
 
