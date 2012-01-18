@@ -175,7 +175,26 @@ Java中类\lstinline!example!的构造函数，在smali中被\lstinline!.method!
 
 \subsubsection{for结构}
 \lstinputlisting[language=java, firstline=13, lastline=17, firstnumber=13, caption={for结构的Java示例}]{code/example-structures.java}
+
 \lstinputlisting[language=smali, firstline=62, lastline=97, firstnumber=62, caption={for结构的smali示例}]{code/example-structures.smali}
+
+首先注意第70行和79行有两个标签\lstinline!:goto_1!和\lstinline!:cond_6!，这种标签用于标记代码位置，用于\lstinline!goto!跳转。
+
+接下来看代码。在67行，定义了一个局部整形变量（在69行给出其名字信息\lstinline!i!），初始化为\lstinline!0!。在71行，将\lstinline!com.lohan.crackme1.example!类的域\lstinline!Counter!的值取到寄存器\lstinline!v1!。
+
+然后在73行将\lstinline!i!与\lstinline!v1!作比较，使用的是\lstinline!if-lt!指令。注意这条指令的第三个操作数为标签\lstinline!:cond_6!。这条指令的执行效果是：如果\lstinline!i!比\lstinline!v1!小（less-than），就跳转到\lstinline!:cond_6!标记的位置；否则顺序执行，即执行\lstinline!return-void!返回。
+
+当跳转到\lstinline!:cond_6!后，我们来看第80行到91行，它们对应的Java源码只有一行：
+\begin{lstlisting}[language=java, numbers=none]
+System.out.println("current val for loop: " + i);
+\end{lstlisting}
+但在smali中，使用了四个\lstinline!invoke!才完成。主要流程是：取\lstinline!java.lang.System!类的\lstinline!out!域，它是一个\lstinline!java.io.PrintStream!对象；创建一个\lstinline!java.lang.StringBuilder!对象；用固定的字符串初始化这个对象；用该对象的\lstinline!append!方法将\lstinline!i!加到字符串后面；用该对象的\lstinline!toString!方法转化为字符串对象；最后，调用\lstinline!out!的\lstinline!println!方法，打印出这个字符串。
+
+由此可以看出，smali代码实际上已经到了Java VM opcode的细致程度，要精通smali，对JVM指令集的了解是需要的。
+
+最后，在打印完字符串以后，在94行，通过\lstinline!add-int!指令，让\lstinline!i!加\lstinline!1!，然后跳转到\lstinline!:goto_1!的位置继续执行下一次循环。
+
+这就是smali中\lstinline!for!循环的标准结构：两个位置标签，一个用于没有越界时跳过\lstinline!return!语句，一个用于加1后循环。
 
 \subsubsection{switch结构}
 \lstinputlisting[language=java, firstline=19, lastline=29, firstnumber=19]{code/example-structures.java}
