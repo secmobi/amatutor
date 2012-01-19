@@ -213,16 +213,12 @@ smali中的\lstinline!switch!结构非常有特色。
 
 现在，让我们把整个代码合并到一起来看。在smali中，\lstinline!switch!结构的代码，首先使用\lstinline!sparse-switch!解析一个集中的跳转表，而这个跳转表会位于函数的最后；接下来根据跳转表，跳转到相应的分支执行；执行完成后，跳转到\lstinline!switch!后面的代码执行。
 
-这种独特的设计，导致诸如\lstinline!dex2jar!等反编译工具在将Dalvik指令转成JVM指令，并由\lstinline!jd-gui!反将JVM指令反编译为Java源码时，出现错误。例如，112到125行的指令就会被反编译如下：
-
-\begin{lstlisting}[language=java, numbers=none]
-  System.out.println("invalid value");
-  while(1){
-    return;
-    System.out.println("val 1"); 
-  }
-\end{lstlisting}
+这种独特的设计，导致诸如\lstinline!dex2jar!等反编译工具在将Dalvik指令转成JVM指令，并由\lstinline!jd-gui!将JVM指令反编译为Java源码时，出现错误。例如，\lstinline!SwitchExample!函数就会被反编译如下：
+\lstinputlisting[language=java, firstline=37, lastline=59, firstnumber=37, caption={dex2jar和jd-gui反汇编的switch结构}]{code/example-structures.dex2jar.java}
 造成这种错误，就是没有解析\lstinline!sparse-switch!所指向的跳转表所致。
+
+而如果使用\lstinline!ded!将Dalvik指令转成JVM指令，用\lstinline!soot!优化并反汇编，得到的结果要好很多（仍有细微错误）：
+\lstinputlisting[language=java, firstline=48, lastline=75, firstnumber=48, caption={ded和soot反汇编的switch结构}]{code/example-structures.ded.java}
 
 \subsubsection{try-catch结构}
 \lstinputlisting[language=java, firstline=31, lastline=46, firstnumber=31, caption={try-catch结构的Java示例}]{code/example-structures.java}
@@ -237,7 +233,11 @@ Dalvik中，\lstinline!try-catch!结构也非常独特，其实现方式与\lsti
 
 如果分别看\lstinline!:try_start_4!和\lstinline!:try_end_10!之间的代码、\lstinline!:catch_11!开始的代码，会发现正好和源码一一对应上。这没有什么特别之处。
 
-另一个细节是，在这个例子中，\lstinline!catch!处理完后，\lstinline!goto!到了195行函数返回。与\lstinline!switch!类似的原因，由于对\lstinline!.catch!修饰符的解析不足，导致\lstinline!dex2jar!和\lstinline!jd-gui!的组合在处理这样的结构时也会出错。
+另一个细节是，在这个例子中，\lstinline!catch!处理完后，\lstinline!goto!到了195行函数返回。与\lstinline!switch!类似的原因，由于对\lstinline!.catch!修饰符的解析不足，导致\lstinline!dex2jar!和\lstinline!jd-gui!的组合在处理这样的结构时也会出错，如下所示：
+\lstinputlisting[language=java, firstline=61, lastline=78, firstnumber=61, caption={dex2jar和jd-gui反汇编的try-catch结构}]{code/example-structures.dex2jar.java}
+
+而使用\lstinline!ded!和\lstinline!soot!反编译得到的结果非常准确：
+\lstinputlisting[language=java, firstline=77, lastline=95, firstnumber=77, caption={ded和soot反汇编的try-catch结构}]{code/example-structures.ded.java}
 
 \subsubsection{数组}
 \lstinputlisting[language=java, firstline=48, lastline=59, firstnumber=48, caption={数组的Java示例}]{code/example-structures.java}
