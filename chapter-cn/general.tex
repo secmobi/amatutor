@@ -1,5 +1,5 @@
 %!TEX encoding = UTF-8 Unicode
-\chapter{概述}
+\chapter{Android基础}
 分析Android恶意代码，首先要了解这个系统的一些知识，例如APK文件格式、软件开发方法和编译过程、常用API的功能、常见代码片段的含义等；还需要对系统内部结构有所认识，例如DEX文件格式、Dalvik指令集、Android系统结构等。其中，API和代码片段的情况可以查阅文档和阅读任何一本Android软件开发书籍。但其他知识散落在文档和书籍之中，没有专门地整理和介绍。本章对它们作简单介绍。DEX文件结构和Dalvik指令集比较重要，将在第\ref{Chap:dalvik}章单独说明。
 
 除了下面这些内容，建议在学习和工作时多查阅Android开发文档，遇到问题时多阅读和分析Android的源代码（尤其是源码中的文档）。国内有几本关于Android系统原理分析的书\cite{android_jishuneimu, android_shenrulijie, android_neihepouxi}也值得一看。
@@ -35,7 +35,7 @@ Android使用一种称之为Dalvik的虚拟机。它非常类似于Java虚拟机
 
 Android随系统附带了一些应用程序，比如通话、通讯录、Web浏览器、软件列表等基本功能。这也意味着，用户所见到的手机界面和功能，实际上都是这一层的一个或多个应用程序。这种设计思想使得用户的所有操作都通过规定的框架和接口调用底层，保证了系统的稳定性和安全性。
 
-\section{Android软件开发}
+\section{软件开发}
 除了上面提到的系统移植，Android上的开发可以分为系统开发和应用程序开发。两者都不涉及与硬件的直接交互。
 
 \subsection{系统级开发}
@@ -90,7 +90,7 @@ Android封装了多种GUI控件，以Java类的方式提供给开发者。例如
   \item 签名APK文件：使用SDK中的\lstinline!jarsigner!工具，对APK文件签名，然后使用\lstinline!zipalign!使该APK文件的数据布局对齐，最终得到可以安装的APK文件。
 \end{enumerate}
 
-\section{APK文件格式}
+\section{APK文件}
 Android系统使用的安装文件后缀名为\lstinline!.apk!。它实际上是标准的ZIP格式\footnote{\url{http://en.wikipedia.org/wiki/ZIP\_(file\_format)}}文件，可以使用\lstinline!unzip!等工具解压缩、\lstinline!zlib!等库进行自动化处理。
 
 一个APK文件解压缩后，通常包括如下文件或文件夹：
@@ -109,3 +109,4 @@ Android系统使用的安装文件后缀名为\lstinline!.apk!。它实际上是
   \item[-] CERT.SF：待定
   \item[-] MANIFEST.MF：待定
 \end{itemize}
+

@@ -3,7 +3,7 @@
 \label{Chap:dalvik}
 Dalvik是专为Android设计的一种类JVM虚拟机，是Android应用程序的实际运行平台。从恶意代码分析的角度，Dalvik上DEX文件格式的重要性，相当于Windows上PE文件格式；Dalvik指令集的重要性，相当于PC上x86指令集的重要性。在静态分析中，分析人员有一半以上的时间是在与Dalvik指令打交道；在动态分析中，绝大部分时候没有恶意代码源码，也会涉及Dalvik级的调试；如果要将一些分析工作自动化，或展开一些研究，就不得不进行DEX格式的解析。
 
-\section{Dalvik虚拟机的设计}
+\section{设计思想}
 JVM是一个已经设计成熟并被实践检验过的成熟的虚拟机。但在Android这样的移动平台，存在CPU性能较低、可用内存极少、电力由电池供应、没有交换空间等限制，直接使用JVM运行复杂的应用程序较为困难。此外，使用JVM还存在许可的问题。因此，Dan Bornstein设计并实现了Dalvik虚拟（名字来源于冰岛的一个小渔村）。
 
 从虚拟级别上来说，Dalvik是一个进程级的虚拟机，提供普通应用程序的运行环境，像Java语言的JVM、.NET平台的CLR一样。从体系结构来看，Dalvik是一个基于寄存器的虚拟机。
@@ -44,7 +44,7 @@ DEX格式中，使用缩略符号表示数据类型，如下表所示：
 \section{ODEX文件格式}
 \label{Sec:odex}
 
-\section{Dalvik指令集}
+\section{指令集}
 关于Dalvik指令集的主要参考文档是Android源码的dalvik/docs/dalvik-bytecode.html文件。本节的主要内容来自于该文档。
 
 指令集的设计是一门艺术。从分析人员的角度考虑，不需要了解其中诸多细节。下面是指令集中为了便于人阅读的一些语法规则：
@@ -102,11 +102,10 @@ DEX格式中，使用缩略符号表示数据类型，如下表所示：
 \section{smali语法}
 由于在静态分析时smali反汇编得到Dalvik指令是目前最常用的一种方法，本节基于smali的语法对Dalvik指令集做进一步介绍。
 
-本节的代码来自于lohan+在其博客\footnote{\url{http://androidcracking.blogspot.com}，这个关于Android逆向和破解技术的博客上有很多不错的文章，建议仔细阅读}上发表的两篇相关教程，他已经授权本文使用，在此表示感谢。
+本节和下一节的代码来自于lohan+在其博客\footnote{\url{http://androidcracking.blogspot.com}，这个关于Android逆向和破解技术的博客上有很多不错的文章，建议仔细阅读}上发表的两篇相关教程，他已经授权本文使用，在此表示感谢。
 
 其中涉及大量关于Dalvik中数据类型的语法，请回顾第\ref{SubSec:dalvik_data_type}节。
 
-\subsection{smali源文件}
 先来看一个smali源文件，比较长，我们在后面逐一解释：
 \lstinputlisting[language=smali, caption={smali源文件示例}]{code/example.smali}
 
@@ -160,7 +159,7 @@ public void example(boolean someBool, String exampleString, int someInt);
 
 最后，在第61行，这个构造函数使用\lstinline!return-void!指令退出。到此，读者可以尝试自己阅读和分析第64到78行的\lstinline!someMethod!方法。
 
-\subsection{常用代码结构}
+\section{常见源码结构}
 无论是学习哪个指令集的反汇编，最好的方法都是自己动手将常见的代码结构写出来、编译好，再反汇编，将源码与反汇编结果对应起来看。lohan+再次为我们提供了这样的资源。
 
 \subsubsection{构造函数和域}

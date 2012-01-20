@@ -59,7 +59,7 @@ Android中大量使用XML，用于项目配置（AndroidManifest.xml）、界面
   \end{tabular}
 \end{table}
 
-\section{Dalvik反汇编}
+\section{反汇编}
 APK文件中的classes.dex文件用于在Dalvik虚拟机中被加载和执行，对它的逆向是静态分析的主要工作。本节介绍将其opcode反汇编为可阅读指令的工具，但该文件的格式、这些指令的含义，均在后面第\ref{Chap:dalvik}章专门介绍。
 
 \subsection{smali}
@@ -103,7 +103,7 @@ smali.jar则用于将.smali文件汇编为DEX文件：
 
 IDA Pro是一个非常强大的工具，在后面我们还会介绍使用它进行ARM的反汇编和调试。深入学习IDA Pro的使用方法和原理是值得的，而最好的书是\cite{ida_pro}。
 
-\section{Dalvik反编译}
+\section{反编译}
 将Java源码编译为Dalvik指令分为两步：先使用\lstinline!javac!将源码编译为.class文件，再使用\lstinline!dx!转换为DEX文件。反之，将DEX文件反编译为Java源码通常也是两步：将DEX再次转换为.class或.jar文件，主要是指令和文件格式的转换；然而将.class或.jar文件用Java反编译器反编译成Java源码。
 
 \subsection{dex2jar}
