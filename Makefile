@@ -1,6 +1,4 @@
 texfile = amatutor-cn
-reffile = $(texfile)
-styfile = $(texfile)
 subdir = chapter-cn
 
 TEX = xelatex
@@ -9,9 +7,7 @@ IDX = makeindex
 
 all: $(texfile).pdf
 
-pdf: all
-
-$(texfile).pdf: $(texfile).tex $(styfile).sty $(reffile).bib $(subdir)/*.tex
+$(texfile).pdf: *.tex *.sty *.bib $(subdir)/*.tex
 	$(TEX) $(texfile)
 	$(BIB) $(texfile)
 	$(IDX) $(texfile)
