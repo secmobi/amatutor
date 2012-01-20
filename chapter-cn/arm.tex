@@ -321,7 +321,7 @@ ARM漏洞利用是一个新的领域，目前参考文献较少，主要有\cite
 以此思想为基础，Avraham提出了所谓的Ret2ZP(Return to Zero Protection)的攻击方法，主要在\cite{arm_stack_exploitation}和\cite{arm_exploitation}中进行了阐述。
 
 \section{zergRush分析}
-\subsection{背景和原理}
+\subsubsection{背景和原理}
 Revolutionary工具开发小组在2011年10月发布了一个在Android 2.2和2.3上获得root权限的方法\footnote{\url{http://forum.xda-developers.com/showthread.php?t=1296916}}，并公布了漏洞利用代码zergRush.c\footnote{\url{https://github.com/revolutionary/zergRush/blob/master/zergRush.c}}。tomken\_zhang已经在其博客上发表了两篇文章对其分析\footnote{\url{http://blog.csdn.net/tomken\_zhang/article/details/6866260}\newline\url{http://blog.csdn.net/tomken\_zhang/article/details/6870104}}。本文做进一步梳理和补充。
 
 产生漏洞的主要原因是：具有root权限的vold进程使用了libsysutils.so库，该库的一个函数存在栈溢出，因此可以在root权限执行输入的shellcode。
@@ -336,8 +336,7 @@ zergRush.c成功地利用了这一漏洞，并进一步：
 
 其中第二步的方法是：adb进程最初以root运行，之后调用setuid()降低权限\footnote{\url{http://blog.claudxiao.net/2011/04/android-adb-setuid/}}降权之前，会判断系统属性ro.kernel.qemu，如果该属性位1，则不降权。
 
-\subsection{函数功能概要}
-
+\subsubsection{函数功能概要}
 \begin{description}
 \item[die] 打印出错信息，退出程序
 \item[copy] 将一个文件拷贝为另一个文件
@@ -352,7 +351,7 @@ zergRush.c成功地利用了这一漏洞，并进一步：
 \item[main] 主函数，完成漏洞利用的所有步骤
 \end{description}
 
-\subsection{main函数}
+\subsubsection{main函数}
 \lstinputlisting[language=c,caption={zergRush的main函数}, firstnumber=387, firstline=387, lastline=536]{code/zergRush.c}
 \begin{itemize}
 \item[395-396] 如果当前程序是以root权限运行，并且程序名为boomsh，则调用do\_root，执行附加的两步操作
@@ -368,7 +367,7 @@ zergRush.c成功地利用了这一漏洞，并进一步：
 \item[516-533] 一旦利用成功，并且系统的ro.kernel.qemu属性已经被置为1，则利用完成，重启的adb进程即可获得root权限。
 \end{itemize}
 
-\subsection{do\_root函数}
+\subsubsection{do\_root函数}
 \lstinputlisting[language=c,caption={zergRush的do\_root函数}, firstnumber=377, firstline=377, lastline=384]{code/zergRush.c}
 \begin{itemize}
 \item[395-396] 若当前程序是以root权限执行的/data/local/tmp/boomsh，则调用do\_root函数。
@@ -378,7 +377,7 @@ zergRush.c成功地利用了这一漏洞，并进一步：
 \item[382] 设置系统的ro.kernel.qemu属性为1。
 \end{itemize}
 
-\subsection{find\_stack\_addr函数}
+\subsubsection{find\_stack\_addr函数}
 \lstinputlisting[language=c,caption={zergRush的find\_stack\_addr函数}, firstnumber=324, firstline=324, lastline=374]{code/zergRush.c}
 \begin{itemize}
 \item[332-333] 清空logcat缓存，删除老的/data/local/tmp/crashlog日志文件。
@@ -388,7 +387,7 @@ zergRush.c成功地利用了这一漏洞，并进一步：
 \item[370-371] jumpsz = over – sp
 \end{itemize}
 
-\subsection{do\_fault函数}
+\subsubsection{do\_fault函数}
 \lstinputlisting[language=c,caption={zergRush的do\_fault函数}, firstnumber=163, firstline=163, lastline=221]{code/zergRush.c}
 \begin{itemize}
 \item[165] buf是最后发送至vold的shellcode。
@@ -402,7 +401,7 @@ zergRush.c成功地利用了这一漏洞，并进一步：
 \item[214] 将shellcode发送至vold进程。
 \end{itemize}
 
-\subsection{总结}
+\subsubsection{总结}
 
 综合来看，zergRush.c的思路如下：
 \begin{enumerate}
