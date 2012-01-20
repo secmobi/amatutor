@@ -17,7 +17,7 @@
 \renewcommand\ttdefault{pcr}
 
 % 源码高亮环境
-\definecolor{gray}{rgb}{0.9,0.9,0.9}
+\definecolor{gray}{RGB}{230, 230, 230}
 \definecolor{darkgreen}{RGB}{47, 79, 47}
 \newfontfamily{\lstfamily}[Scale=.85]{Monaco}
 \usepackage{listings}
@@ -27,16 +27,12 @@
 	commentstyle=\color{darkgreen}, 
 	stringstyle=\color{red}, 
 	backgroundcolor=\color{gray},
-	frame=single,
 	numbers=left, 
 	numberstyle=\lstfamily\tiny,
 	stepnumber=1,  
-	xleftmargin=-1em,
-	xrightmargin=-3em, 
-	aboveskip=0em,
-	tabsize=4,
+	tabsize=2,
 	breaklines=true, 
-	title=\lstname,
+	%title=\lstname,
 	extendedchars=false,	% 必须如此，否则和hyperref冲突，出错。
  }
  \renewcommand*{\lstlistingname}{代码}
@@ -50,10 +46,3 @@
 % ltxtable = tabularx换行表格 + longtable换页表格
 % filecontents 使表格在同一文件内
 \usepackage{ltxtable, filecontents}
-
-\newcommand{\hrefurl}[1]{
-\begin{center}
-\href{#1}{#1}
-\end{center}
-}
-
