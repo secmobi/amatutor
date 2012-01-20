@@ -115,7 +115,7 @@ IDA Pro是一个非常强大的工具，在后面我们还会介绍使用它进�
 \end{lstlisting}
 最后在当前目录生成名为Example.apk.dex2jar.jar的文件。
 
-应当注意的是，\lstinline!dex2jar!工具的结果并不完全精确。目前已知在转换\lstinline!switch!、\lstinline!try-exception!等函数结构时，将会出错。
+应当注意的是，\lstinline!dex2jar!工具的结果并不完全精确。目前已知在转换\lstinline!switch!、\lstinline!try-catch!等函数结构时，将会出错，具体示例和原因分析可以参考\ref{SubSec:dalvik-smali-switch}节和\ref{SubSec:dalvik-smali-trycatch}节。
 
 \subsection{jd-gui}
 \lstinline!jd-gui!\footnote{\url{http://java.decompiler.free.fr/?q=jdgui}}\index{jd-gui}是一个图形界面的Java反编译器，可以用来反编译\lstinline!dex2jar!产生的jar文件。

@@ -3,6 +3,30 @@
 
 \section{系统级安全机制}
 
-\section{常见系统漏洞}
+\section{提权漏洞}
 
-\section{SEAndroid}
+\section{数据泄露漏洞}
+
+\section{更安全的系统}
+\subsection{SEAndroid}
+NSA在1月16日发布了基于SELinux的SEAndroid\footnote{\url{http://selinuxproject.org/page/SEAndroid}}\index{SEAndroid}。
+
+其主要工作和思想如下：
+
+\begin{itemize}
+  \item 要把SELinux系统及其设计思想移植到Android有不少困难，比如非标准Linux机制（Ashmem、Binder等模块）、Android框架层的策略、现有DAC权限控制模型、文件系统不支持安全标签等等，但SEAndroid项目最后解决了这些问题
+  \item 对目前Android系统上发现的几乎所有提权漏洞、Android应用上发现的大量信息泄露漏洞，SEAndroid都能补上，主要是漏洞利用程序的利用步骤会被SEAndroid的安全策略所阻止，也就是无法顺利利用漏洞。
+  \item 作者认为对Android，MAC模型是有意义的，并且可以和现有安全体系并存。
+\end{itemize}
+
+从RageAgainstTheCage、zergRush（NSA称之为GingerBreak）这两个漏洞利用的阻止细节上，SEAndroid的安全做得比较理想，对权限的管理已经到了及其严格的地步，利用代码几乎寸步难行。
+
+而这个项目目前存在什么问题，NSA公开的资料中只字不提。笔者认为，对性能的损耗可能是第一位的。
+
+在去年的一篇论文中有提到，即便是在Android所有敏感API的入口处基于源码做hook，记录API触发行为和参数，编译得到的系统的性能都有显著的降低，而这个降低的性能在真实机器上可能引发连锁效应，导致整个系统无法启动。
+
+而SEAndroid从文件系统开始广泛使用标签，对每个需要管理的对象使用标签来实施安全策略，这里还包括对每个敏感行为的审计。笔者倾向于认为这样的改动也会遇到同样的问题。至于NSA有没有解决，是如何解决的，还需要进一步看细节。
+
+\subsection{TainDroid}
+
+\subsection{AppFence}

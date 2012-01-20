@@ -162,7 +162,7 @@ public void example(boolean someBool, String exampleString, int someInt);
 \section{常见源码结构}
 无论是学习哪个指令集的反汇编，最好的方法都是自己动手将常见的代码结构写出来、编译好，再反汇编，将源码与反汇编结果对应起来看。lohan+再次为我们提供了这样的资源。
 
-\subsubsection{构造函数和域}
+\subsection{构造函数和域}
 \lstinputlisting[language=java, firstline=8, lastline=11, firstnumber=8, caption={构造函数、域的Java示例}]{code/example-structures.java}
 \lstinputlisting[language=smali, firstline=5, lastline=18, firstnumber=5, caption={构造函数、域的smali示例}]{code/example-structures.smali}
 
@@ -172,8 +172,8 @@ Java中类\lstinline!example!的构造函数，在smali中被\lstinline!.method!
 
 在代码的第15行，\lstinline!sput!指令的作用是赋给一个域变量指定的值。注意域是类有关而与具体对象无关的，因此需要使用\lstinline!Lcom/lohan/crackme1/example;!来指出其归属关系。这也是为什么\lstinline!sput!需要单独作为一条指令。
 
-\subsubsection{for结构}
-\label{SubSubSec:dalvik-smali-for}
+\subsection{for结构}
+\label{SubSec:dalvik-smali-for}
 \lstinputlisting[language=java, firstline=13, lastline=17, firstnumber=13, caption={for结构的Java示例}]{code/example-structures.java}
 
 \lstinputlisting[language=smali, firstline=62, lastline=97, firstnumber=62, caption={for结构的smali示例}]{code/example-structures.smali}
@@ -196,7 +196,9 @@ System.out.println("current val for loop: " + i);
 
 这就是smali中\lstinline!for!循环的标准结构：两个位置标签，一个用于没有越界时跳过\lstinline!return!语句，一个用于加1后循环。
 
-\subsubsection{switch结构}
+\subsection{switch结构}
+\label{SubSec:dalvik-smali-switch}
+
 \lstinputlisting[language=java, firstline=19, lastline=29, firstnumber=19, caption={switch结构的Java示例}]{code/example-structures.java}
 \lstinputlisting[language=smali, firstline=99, lastline=158, firstnumber=99, caption={switch结构的smali示例}]{code/example-structures.smali}
 
@@ -219,7 +221,8 @@ smali中的\lstinline!switch!结构非常有特色。
 而如果使用\lstinline!ded!将Dalvik指令转成JVM指令，用\lstinline!soot!优化并反汇编，得到的结果要好很多（仍有细微错误）：
 \lstinputlisting[language=java, firstline=48, lastline=75, firstnumber=48, caption={ded和soot反汇编的switch结构}]{code/example-structures.ded.java}
 
-\subsubsection{try-catch结构}
+\subsection{try-catch结构}
+\label{SubSec:dalvik-smali-trycatch}
 \lstinputlisting[language=java, firstline=31, lastline=46, firstnumber=31, caption={try-catch结构的Java示例}]{code/example-structures.java}
 \lstinputlisting[language=smali, firstline=160, lastline=262, firstnumber=160, caption={try-catch结构的smali示例}]{code/example-structures.smali}
 
@@ -238,7 +241,7 @@ Dalvik中，\lstinline!try-catch!结构也非常独特，其实现方式与\lsti
 而使用\lstinline!ded!和\lstinline!soot!反编译得到的结果非常准确：
 \lstinputlisting[language=java, firstline=77, lastline=95, firstnumber=77, caption={ded和soot反汇编的try-catch结构}]{code/example-structures.ded.java}
 
-\subsubsection{数组}
+\subsection{数组}
 \lstinputlisting[language=java, firstline=48, lastline=59, firstnumber=48, caption={数组的Java示例}]{code/example-structures.java}
 \lstinputlisting[language=smali, firstline=20, lastline=60, firstnumber=20, caption={数组的smali示例}]{code/example-structures.smali}
 
