@@ -191,26 +191,22 @@ SDK中的\lstinline!ddms!\index{ddms}工具提供了一个可视化调试环境�
 Wireshark\footnote{\url{http://www.wireshark.org}}\index{Wireshark}是分析网络数据最常用也最强大的工具。在此不再专门介绍。
 
 \section{行为模拟}
-很多样本的恶意行为只在一定条件下触发，但在分析环境中，这些条件不一定能立即实现。此时需要对相应的条件进行模拟。
+很多样本的恶意行为只在一定条件下触发，但在分析环境中，这些条件不一定能立即实现。此时需要对相应的条件进行模拟。在Android SDK文档中对此已经有一些介绍\footnote{\url{http://developer.android.com/guide/developing/devices/emulator.html}}。
 
 \subsection{am}
 \lstinline!am!\index{am}是Android系统中的一个工具，位于/system/bin目录下，实际上是基于\lstinline!/system/framework/am.jar!执行\lstinline!com.android.commands.am.Am!类的代码。\lstinline!am!的主要作用即是启动活动（activity）、意图（intent）、广播（broadcast）等。
 
 \lstinline!am!的用法如下：
 \lstinputlisting[firstline=1, lastline=20, numbers=none]{code/am.txt}
-下面介绍其中常用的一些。
 
-\subsubsection{start}
-\subsubsection{startservice}
-\subsubsection{broadcast}
+其中，\lstinline!am start!用于启动一个活动；\lstinline!am startservice!用于启动一个服务；\lstinline!am broadcast!用于发送一个广播。它们的参数都是一个一个意图(Intent)。\lstinline!am!中intent的写法如下：
+\lstinputlisting[firstline=76, lastline=101, numbers=none]{code/am.txt}
+
+\subsection{telnet}
 
 \subsection{DNS}
 
-\subsection{telnet}
-通过telnet可以与模拟器中的Android系统收发短信、拨打接听电话。
-
 \subsection{openBTS}
-对真实手机中的Android系统，可以通过架设一个OpenBTS系统来获取其发送短信、拨打电话的行为，并模拟任意的外部号码向其发送短信、拨打电话。
 
 \section{行为跟踪}
 \subsection{droidbox}
