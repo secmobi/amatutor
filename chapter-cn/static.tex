@@ -63,7 +63,7 @@ Android中大量使用XML，用于项目配置（AndroidManifest.xml）、界面
 APK文件中的classes.dex文件用于在Dalvik虚拟机中被加载和执行，对它的逆向是静态分析的主要工作。本节介绍将其opcode反汇编为可阅读指令的工具，但该文件的格式、这些指令的含义，均在后面第\ref{Chap:dalvik}章专门介绍。
 
 \subsection{smali}
-\lstinline!smali!\footnote{\url{http://code.google.com/p/smali/}}\index{smali}工具由两个文件smali.jar!和baksmali.jar组成。
+\lstinline!smali!\footnote{\url{http://code.google.com/p/smali/}}\index{smali}工具由两个文件smali.jar和baksmali.jar组成。
 
 baksmali.jar用于反汇编：
 \begin{lstlisting}[language=bash, numbers=none]
@@ -182,7 +182,7 @@ Certificate fingerprints:
 
 \section{综合工具}
 \subsection{apktool}
-\lstinline!apktool!\footnote{\url{http://code.google.com/p/android-apktool/}}\index{apktool}是一系列工具的集合。它的功能包括：APK文件解包和打包、AXML编码与解码、资源文件的解包和打包、smali汇编与反汇编、samli调试等。
+\lstinline!apktool!\footnote{\url{http://code.google.com/p/android-apktool/}}\index{apktool}是一系列工具的集合。它的功能包括：APK文件解包和打包、AXML编码与解码、资源文件的解包和打包、smali汇编与反汇编、smali调试等。
 
 其中，最常用的功能是解包和打包。解包命令为：
 \begin{lstlisting}[language=bash, numbers=none]
@@ -192,7 +192,7 @@ Certificate fingerprints:
 
 打包命令为：
 \begin{lstlisting}[language=bash, numbers=none]
- $ apktool b dir New.apk
+ $ ./apktool b dir New.apk
 \end{lstlisting}
 
 而在解包和打包之间，允许对配置文件AndroidManifest.xml、资源文件、smali代码的增加、删除、修改等，而重新打包后得到的APK文件在签名后可以安装到手机中运行。因此，\lstinline!apktool!常被攻击者用于恶意代码植入（参考\ref{Sec:repackage}节）或软件破解。但也可以用于恶意代码分析——增加或修改代码后进行动态分析。
