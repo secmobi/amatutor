@@ -91,7 +91,7 @@ Android封装了多种GUI控件，以Java类的方式提供给开发者。例如
 \end{enumerate}
 
 \section{APK文件}
-Android系统使用的安装文件后缀名为\lstinline!.apk!。它实际上是标准的ZIP格式\footnote{\url{http://en.wikipedia.org/wiki/ZIP\_(file\_format)}}文件，可以使用\lstinline!unzip!等工具解压缩、\lstinline!zlib!等库进行自动化处理。
+Android系统使用的安装文件后缀名为\lstinline!.apk!。它实际上是标准的ZIP格式\cite{url:zip_format}文件，可以使用\lstinline!unzip!等工具解压缩、\lstinline!zlib!等库进行自动化处理。
 
 一个APK文件解压缩后，通常包括如下文件或文件夹：
 \begin{itemize}
@@ -111,5 +111,5 @@ Android系统使用的安装文件后缀名为\lstinline!.apk!。它实际上是
 \end{itemize}
 
 \section{AndroidManifest.xml文件}
-AndroidManifest.xml\footnote{\url{http://developer.android.com/guide/topics/manifest/manifest-intro.html}}\index{AndroidManifest.xml}文件是了解一个Android应用程序的第一步。它的结构如下：
+AndroidManifest.xml\cite{url:android_manifest}\index{AndroidManifest.xml}文件是了解一个Android应用程序的第一步。它的结构如下：
 \lstinputlisting[language=xml,caption={AndroidManifest.xml文件的结构框架}]{code/manifest.xml}

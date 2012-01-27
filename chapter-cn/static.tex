@@ -32,12 +32,12 @@ Android中大量使用XML，用于项目配置（AndroidManifest.xml）、界面
 
 为什么需要这么做？传统的XML解析有两种模型：SAX(Simple API for XML)和DOM(Document Object Model)。SAX的主要思路是遍历整个XML文件，每次遇到不同的对象（例如一个属性、一个节点开始、一个节点结束等），就触发相应的回调函数对其进行处理。这种解析方法的内存占用很少，适合于只需要遍历XML文件一次或少数几次就能把需要的事情都处理完的应用场景。但在Android中，由于AndroidManifest.xml会被多次使用（比如说，每次调用敏感API时都要检查其权限），所以并不适合使用SAX。DOM的主要思想则是将XML视为一棵树，在内存中建立并长期维护这颗树，而所有对XML的解析都变成对这颗树的访问。它的优点是可以每次访问都很快，甚至可以并行地方法（存在一定的读写互斥问题，这是另一个很有意思的话题）。但它的缺点也很明显，即需要长期占用较大的内存，对手机设备来说，内存是很重要的资源，这种消耗是应该要避免的。
 
-实际上还有一种解析模型，叫PULL\footnote{\url{http://www.xmlpull.org}}，它是SAX和DOM的折中方案。它很类似于SAX的事件触发机制，但这种触发并不调用事先注册的回调函数，而是由解析者自己触发事件并根据实际情况做自己的事情。由于这种主动性，即解析者可以自己决定哪些地方是感兴趣的、哪些地方不是，所以可以非常轻量地跳转到自己需要的那一部分数据做解析。
+实际上还有一种解析模型，叫PULL\cite{url:xmlpull}，它是SAX和DOM的折中方案。它很类似于SAX的事件触发机制，但这种触发并不调用事先注册的回调函数，而是由解析者自己触发事件并根据实际情况做自己的事情。由于这种主动性，即解析者可以自己决定哪些地方是感兴趣的、哪些地方不是，所以可以非常轻量地跳转到自己需要的那一部分数据做解析。
 
 已经说得比较远了。之所以介绍PULL，是因为Android不但使用了PULL，还为PULL模型专门设计了AXML格式，这种格式的PULL解析非常容易实现，解析速度很快。此外，AXML还将所有字符串使用UTF-16LE编码、所有字段4字节内存对齐（Dalvik虚拟机和ARM处理器在访问4字节对齐数据时都会更快）、对重复字符串资源做成单实例等优化、根据需要解析字符串等。通过这些优化，进一步提高了Android系统解析XML文件的效率。
 
 \subsection{AXMLPrinter2}
-\lstinline!AXMLPrinter!\index{AXMLPrinter}是开源项目android4me\footnote{\url{http://code.google.com/p/android4me/}}的一个产品，可以将从XML到AXML的编码过程逆向执行，即将AXML文件还原为可读的XML形式。它的使用非常简单：
+\lstinline!AXMLPrinter!\index{AXMLPrinter}是开源项目android4me\cite{url:android4me}的一个产品，可以将从XML到AXML的编码过程逆向执行，即将AXML文件还原为可读的XML形式。它的使用非常简单：
 \begin{lstlisting}[language=bash, numbers=none]
  $ java -jar AXMLPrinter2.jar encoded.xml > decoded.xml
 \end{lstlisting}
@@ -63,7 +63,7 @@ Android中大量使用XML，用于项目配置（AndroidManifest.xml）、界面
 APK文件中的classes.dex文件用于在Dalvik虚拟机中被加载和执行，对它的逆向是静态分析的主要工作。本节介绍将其opcode反汇编为可阅读指令的工具，但该文件的格式、这些指令的含义，均在后面第\ref{Chap:dalvik}章专门介绍。
 
 \subsection{smali}
-\lstinline!smali!\footnote{\url{http://code.google.com/p/smali/}}\index{smali}工具由两个文件smali.jar和baksmali.jar组成。
+\lstinline!smali!\cite{url:smali}\index{smali}工具由两个文件smali.jar和baksmali.jar组成。
 
 baksmali.jar用于反汇编：
 \begin{lstlisting}[language=bash, numbers=none]
@@ -76,14 +76,14 @@ smali.jar则用于将.smali文件汇编为DEX文件：
  $ java -jar baksmali.jar dir -o classes_new.dex
 \end{lstlisting}
 
-\lstinline!smali!使用基于\lstinline!jasmin!\footnote{\url{http://jasmin.sourceforge.net}}\index{jasmin}的汇编语法。lohan+为这种语法编写了UltraEdit、Notepad++、Vim和SyntaxHighlighter的语法高亮文件，可以在其博客上下载\footnote{\url{http://androicracking.blogspot.com}}。这个博客还提供了一些逆向分析教程和资料。
+\lstinline!smali!使用基于\lstinline!jasmin!\cite{url:jasmin}\index{jasmin}的汇编语法。lohan+为这种语法编写了UltraEdit、Notepad++、Vim和SyntaxHighlighter的语法高亮文件，可以在其博客上下载\cite{url:androidcracking}。这个博客还提供了一些逆向分析教程和资料。
 
 \lstinline!smali!的另一个优势在于它支持odex格式文件（参考第\ref{Sec:odex}节）的反汇编。TODO
 
 因为精确地汇编与反汇编，\lstinline!smali!成为Android恶意代码编写和分析中最常用的工具之一。
 
 \subsection{dedexer}
-\lstinline!dedexer!\footnote{\url{http://sourceforge.net/projects/dedexer/}}\index{dedexer}是另一个Dalvik反汇编工具，用法是：
+\lstinline!dedexer!\cite{url:dedexer}\index{dedexer}是另一个Dalvik反汇编工具，用法是：
 \begin{lstlisting}[language=bash, numbers=none]
  $ java -jar ddx.jar -d dir classes.dex
 \end{lstlisting}
@@ -107,7 +107,7 @@ IDA Pro是一个非常强大的工具，在后面我们还会介绍使用它进�
 将Java源码编译为Dalvik指令分为两步：先使用\lstinline!javac!将源码编译为.class文件，再使用\lstinline!dx!转换为DEX文件。反之，将DEX文件反编译为Java源码通常也是两步：将DEX再次转换为.class或.jar文件，主要是指令和文件格式的转换；然而将.class或.jar文件用Java反编译器反编译成Java源码。
 
 \subsection{dex2jar}
-\lstinline!dex2jar!\footnote{\url{http://code.google.com/p/dex2jar/}}\index{dex2jar}将classes.dex逆向为Java的类文件（.class文件），并打包为.jar格式。
+\lstinline!dex2jar!\cite{url:dex2jar}\index{dex2jar}将classes.dex逆向为Java的类文件（.class文件），并打包为.jar格式。
 
 \lstinline!dex2jar!并不直接使用classes.dex，它自带了解析APK的功能，命令为：
 \begin{lstlisting}[language=bash, numbers=none]
@@ -118,7 +118,7 @@ IDA Pro是一个非常强大的工具，在后面我们还会介绍使用它进�
 应当注意的是，\lstinline!dex2jar!工具的结果并不完全精确。目前已知在转换\lstinline!switch!、\lstinline!try-catch!等函数结构时，将会出错，具体示例和原因分析可以参考\ref{SubSec:dalvik-smali-switch}节和\ref{SubSec:dalvik-smali-trycatch}节。
 
 \subsection{jd-gui}
-\lstinline!jd-gui!\footnote{\url{http://java.decompiler.free.fr/?q=jdgui}}\index{jd-gui}是一个图形界面的Java反编译器，可以用来反编译\lstinline!dex2jar!产生的jar文件。
+\lstinline!jd-gui!\cite{url:jd-gui}\index{jd-gui}是一个图形界面的Java反编译器，可以用来反编译\lstinline!dex2jar!产生的jar文件。
 
 \begin{figure}[htbp]
   \centering
@@ -130,18 +130,18 @@ IDA Pro是一个非常强大的工具，在后面我们还会介绍使用它进�
 \lstinline!dex2jar!对部分函数结构的逆向错误将直接在\lstinline!jd-gui!的反编译结果中显示出来。此外，部分特殊优化的类方法（函数），\lstinline!jd-gui!的反编译将失败。目前还不清楚原因。
 
 \subsection{ded}
-\lstinline!ded!\footnote{\url{http://siis.cse.psu.edu/ded/}}\index{ded}是宾西法尼亚大学研究人员开发的软件，可以将DEX文件转为Java的.class文件。目前只能在Linux和Mac OS X下使用。
+\lstinline!ded!\cite{url:ded}\index{ded}是宾西法尼亚大学研究人员开发的软件，可以将DEX文件转为Java的.class文件。目前只能在Linux和Mac OS X下使用。
 
-\lstinline!ded!使用\lstinline!soot!\footnote{\url{http://www.sable.mcgill.ca/soot/}}\index{soot}对.class文件做优化，优化后反编译得到的Java源文件效果较好，在一些细节上优于\lstinline!dex2jar!和\lstinline!jd-gui!的组合，尤其是对一些循环结构和异常处理代码的反编译上。但soot的运行速度极慢、占用内存较多。
+\lstinline!ded!使用\lstinline!soot!\cite{url:soot}\index{soot}对.class文件做优化，优化后反编译得到的Java源文件效果较好，在一些细节上优于\lstinline!dex2jar!和\lstinline!jd-gui!的组合，尤其是对一些循环结构和异常处理代码的反编译上。但soot的运行速度极慢、占用内存较多。
 
 \lstinline!ded!的安装和使用方法请参考其主页的说明。
 
 \subsection{其他}
-其他反编译器还有\lstinline!undx!\footnote{\url{http://sourceforge.net/projects/undx/}}\index{undx}和\lstinline!dex-decompiler!\footnote{\url{http://code.google.com/p/dex-decompiler/}}\index{dex-decompiler}，但效果如何，还没有试用过。
+其他反编译器还有\lstinline!undx!\cite{url:undx}\index{undx}和\lstinline!dex-decomplier!\cite{url:dex-decomplier}\index{dex-decomplier}，但效果如何，还没有试用过。
 
 \lstinline!undx!的作者做过一个介绍其实现原理的报告\cite{dalvik_undx}，值得参考。
 
-除了\lstinline!jd-gui!和\lstinline!soot!，常用的Java反编译工具还有\lstinline!jad!\footnote{\url{http://www.varaneckas.com/jad}}\index{jad}和\lstinline!dava!\footnote{\url{http://www.sable.mcgill.ca/dava/}}\index{dava}。
+除了\lstinline!jd-gui!和\lstinline!soot!，常用的Java反编译工具还有\lstinline!jad!\cite{url:jad}n\index{jad}和\lstinline!dava!\cite{url:dava}\index{dava}。
 
 \section{数字签名}
 数字签名是Android系统的重要安全机制之一。应用软件要被安装到手机中，必须先签名；要发布到官方市场上，还需要签上为开发者专门颁发的签名。因此，应用软件的数字签名在建立白名单、检测未知恶意代码、判断同源性和家族性等方面有很重要的价值。
@@ -156,7 +156,7 @@ IDA Pro是一个非常强大的工具，在后面我们还会介绍使用它进�
 APK文件经过\lstinline!signapk!签名，再使用\lstinline!zipalign!对齐，就可以安装到手机中了。
 
 \subsection{openssl}
-一般情况下，APK文件的签名位于其压缩包的META-INF/CERT.RSA文件中。可以使用\lstinline!openssl!\footnote{\url{http://www.openssl.org}}\index{openssl}工具查看其签名信息：
+一般情况下，APK文件的签名位于其压缩包的META-INF/CERT.RSA文件中。可以使用\lstinline!openssl!\cite{url:openssl}\index{openssl}工具查看其签名信息：
 \begin{lstlisting}[language=bash, numbers=none]
  $ openssl pkcs7 -in CERT.RSA -inform DER -print_certs
 \end{lstlisting}
@@ -182,7 +182,7 @@ Certificate fingerprints:
 
 \section{综合工具}
 \subsection{apktool}
-\lstinline!apktool!\footnote{\url{http://code.google.com/p/android-apktool/}}\index{apktool}是一系列工具的集合。它的功能包括：APK文件解包和打包、AXML编码与解码、资源文件的解包和打包、smali汇编与反汇编、smali调试等。
+\lstinline!apktool!\cite{url:apktool}\index{apktool}是一系列工具的集合。它的功能包括：APK文件解包和打包、AXML编码与解码、资源文件的解包和打包、smali汇编与反汇编、smali调试等。
 
 其中，最常用的功能是解包和打包。解包命令为：
 \begin{lstlisting}[language=bash, numbers=none]
@@ -200,7 +200,7 @@ Certificate fingerprints:
 \lstinline!apktool!还提供对smali文件的调试功能，将在\ref{Sec:debug}节进一步介绍。
 
 \subsection{androguard}
-\lstinline!androguard!\footnote{\url{http://code.google.com/p/androguard/}}\index{androguard}是一个综合性的Android逆向分析工具，使用Python编写。\lstinline!androguard!的功能非常多，包括：
+\lstinline!androguard!\cite{url:androguard}\index{androguard}是一个综合性的Android逆向分析工具，使用Python编写。\lstinline!androguard!的功能非常多，包括：
 \begin{itemize}
   \item 1
 \end{itemize}
@@ -209,4 +209,3 @@ Certificate fingerprints:
 
 \subsection{dexid}
 \subsection{Mobile Sandbox}
-Mobile Sandbox\footnote{\url{http://www.mobile-sandbox.com}}

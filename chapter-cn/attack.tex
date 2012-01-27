@@ -38,7 +38,7 @@
 
 恶意代码通常设置多种常见系统事件的接收器，在它们的\lstinline!onReceive()!实现中开启一个恶意的服务。我们不演示这些行为，直接将工程编译，得到Malware.apk。
 \subsection{解包正常软件}
-选取一个正常软件的安装文件，例如Software.apk（package名为net.claudxiao.Software）。利用apktool工具\footnote{http://code.google.com/p/android-apktool/}将其解包：
+选取一个正常软件的安装文件，例如Software.apk（package名为net.claudxiao.Software）。利用apktool工具将其解包：
 \begin{lstlisting}[language=bash, numbers=none]
 apktool d Software.apk
 \end{lstlisting}

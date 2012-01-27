@@ -6,14 +6,14 @@
 
 \section{运行环境}
 \subsection{模拟器}
-Android SDK提供了用于应用软件开发的Android模拟器\lstinline!emulator!\footnote{\url{http://developer.android.com/guide/developing/tools/emulator.html}}\index{emulator}，是首选的运行环境。
+Android SDK提供了用于应用软件开发的Android模拟器\lstinline!emulator!\cite{url:android_emulator}\index{emulator}，是首选的运行环境。
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=14cm]{image/emulator.png}
   \caption{emulator模拟器}
 \end{figure}
 
-\lstinline!emulator!中模拟的Android系称为AVD（Android Virtual Device），由SDK中\lstinline!android!\footnote{\url{http://developer.android.com/guide/developing/tools/android.html}}\index{android}工具创建：
+\lstinline!emulator!中模拟的Android系称为AVD（Android Virtual Device），由SDK中\lstinline!android!\cite{url:android_android}\index{android}工具创建：
 \begin{lstlisting}[language=bash, numbers=none]
  $ android create avd -n my_avd -t android-10
 \end{lstlisting}
@@ -53,11 +53,11 @@ Android SDK提供了用于应用软件开发的Android模拟器\lstinline!emulat
 \end{itemize}
 
 \subsection{Android-x86}
-Android-x86\footnote{\url{http://www.android-x86.org}}\index{Android-x86}提供了用于Intel x86处理器的Android系统镜像，可以将其安装到诸如VirtualBox和VMware WorkStation这样的虚拟机中。有研究称该项目系统的启动速度是\lstinline!emulator!中AVD启动速度的四分之一。
+Android-x86\cite{url:android_x86}\index{Android-x86}提供了用于Intel x86处理器的Android系统镜像，可以将其安装到诸如VirtualBox和VMware WorkStation这样的虚拟机中。有研究称该项目系统的启动速度是\lstinline!emulator!中AVD启动速度的四分之一。
 
 \section{设备管理}
 \subsection{adb}
-\lstinline!adb!是连接PC与设备（模拟器或手机）的主要工具，其用法在Android开发文档中有详细的说明\footnote{\url{http://developer.android.com/guide/developing/tools/adb.html}}。
+\lstinline!adb!是连接PC与设备（模拟器或手机）的主要工具，其用法在Android开发文档中有详细的说明\cite{url:android_adb}。
 
 它的功能包括：
 \begin{itemize}
@@ -188,10 +188,10 @@ SDK中的\lstinline!ddms!\index{ddms}工具提供了一个可视化调试环境�
 \end{itemize}
 
 \subsection{Wireshark}
-Wireshark\footnote{\url{http://www.wireshark.org}}\index{Wireshark}是分析网络数据最常用也最强大的工具。在此不再专门介绍。
+Wireshark\cite{url:wireshark}\index{Wireshark}是分析网络数据最常用也最强大的工具。在此不再专门介绍。
 
 \section{行为模拟}
-很多样本的恶意行为只在一定条件下触发，但在分析环境中，这些条件不一定能立即实现。此时需要对相应的条件进行模拟。在Android SDK文档中对此已经有一些介绍\footnote{\url{http://developer.android.com/guide/developing/devices/emulator.html}}。
+很多样本的恶意行为只在一定条件下触发，但在分析环境中，这些条件不一定能立即实现。此时需要对相应的条件进行模拟。在Android SDK文档中对此已经有一些介绍\cite{url:android_using_emulator}。
 
 \subsection{am}
 \lstinline!am!\index{am}是Android系统中的一个工具，位于/system/bin目录下，实际上是基于\lstinline!/system/framework/am.jar!执行\lstinline!com.android.commands.am.Am!类的代码。\lstinline!am!的主要作用即是启动活动（activity）、意图（intent）、广播（broadcast）等。
@@ -212,7 +212,7 @@ Wireshark\footnote{\url{http://www.wireshark.org}}\index{Wireshark}是分析网�
 \subsection{droidbox}
 \subsection{LBE}
 \subsection{androidAuditTools}
-androidAuditTools\footnote{\url{https://github.com/wuntee/androidAuditTools}}
+androidAuditTools\cite{url:androidaudittools}
 
 \section{调试}
 \label{Sec:debug}
