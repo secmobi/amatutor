@@ -99,7 +99,7 @@ DEX格式中，使用缩略符号表示数据类型，如下表所示：
 \end{filecontents}
 \LTXtable{\textwidth}{chapter-cn/LTXtable-dalvikopcode.tmp}
 
-\section{smali语法}
+\sectiooosmali语法}
 由于在静态分析时smali反汇编得到Dalvik指令是目前最常用的一种方法，本节基于smali的语法对Dalvik指令集做进一步介绍。
 
 本节和下一节的代码来自于lohan+在其博客\cite{url:androidcracking}上发表的两篇相关教程，他已经授权本文使用，在此表示感谢。
@@ -152,9 +152,9 @@ public void example(boolean someBool, String exampleString, int someInt);
 
 再来看第50行：
 \lstinputlisting[language=smali, firstline=50, lastline=50, firstnumber=50]{code/example.smali}
-使用了\lstinline!iput-boolean!指令，前面已经介绍，\lstinline!iput!是对对象实例中域的操作，这里对象实例由\lstinline!p0!给出，取出其名为\lstinline!someBool!的域，赋给\lstinline!p1!。注意这里遇到了一个名称作用域的问题，当前函数的第一个参数叫\lstinline!someBool!，当前类实例有一个域也叫\lstinline!someBool!，由于使用的\lstinline!iput!，因此这里使用类实例的域。这一行代码等价于源码：
+使用了\lstinline!iput-boolean!指令，前面已经介绍，\lstinline!iput!是对对象实例中域的操作，这里对象实例由\lstinline!p0!给出，因此这条指令是取出\lstinline!p1!的值，赋给\lstinline!p0!的名为\lstinline!someBool!的域。注意这里遇到了一个名称作用域的问题，当前函数的第一个参数叫\lstinline!someBool!，当前类实例有一个域也叫\lstinline!someBool!，由于使用的\lstinline!iput!，因此这里使用类实例的域。这一行代码等价于源码：
 \begin{lstlisting}[language=java, numbers=none]
-  someBool = this.someBool;
+  this.someBool = someBool;
 \end{lstlisting}
 
 最后，在第61行，这个构造函数使用\lstinline!return-void!指令退出。到此，读者可以尝试自己阅读和分析第64到78行的\lstinline!someMethod!方法。
